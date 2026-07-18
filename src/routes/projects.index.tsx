@@ -73,7 +73,7 @@ function priceLabel(p: Project): string {
 
 function ProjectsListingPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/projects" });
+  const navigate = useNavigate({ from: "/projects/" });
 
   const { data: locations } = useLocations();
   const { data: meta } = useMeta();
