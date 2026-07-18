@@ -102,7 +102,13 @@ function LocationDetailPage() {
   const loaderData = Route.useLoaderData();
   const { data: locationData } = useLocation(slug);
   const location = locationData ?? undefined;
-  const displayTitle = location?.title ?? loaderData?.title ?? slug;
+  const slugTitle = slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+  const displayTitle =
+    location?.title ?? loaderData?.title ?? slugTitle;
+
 
   const {
     data: projects,
