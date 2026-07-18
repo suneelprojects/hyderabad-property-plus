@@ -31,15 +31,112 @@ const DEFAULT_ADDRESS = "Financial District, Hyderabad, Telangana 500032";
 export function Footer() {
   const { data: meta } = useMeta();
   const { data: locations } = useLocations();
+  const { data: projects } = useProjects();
 
   const year = new Date().getFullYear();
   const socials = meta?.social ?? {};
+  const address = meta?.address || DEFAULT_ADDRESS;
+  const featured = (projects ?? []).slice(0, 4);
 
   return (
     <footer className="mt-auto bg-[color:var(--navy)] text-white/85">
       <Container>
-        <div className="grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
+        {/* Brand + address row */}
+        <div className="border-b border-white/10 py-10">
+          <Link to="/" className="mb-4 inline-flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-white/20 bg-white/5">
+              <Building2 className="h-5 w-5 text-[color:var(--gold)]" />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="font-serif text-lg font-semibold text-white">
+                Hyderabad Realty Choices
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)]">
+                Luxury Homes · Trusted Choices
+              </span>
+            </span>
+          </Link>
+          <p className="max-w-xl text-sm leading-relaxed text-white/70">
+            Connecting buyers with verified residential projects across
+            Hyderabad through trust, transparency, and expert guidance.
+          </p>
+          <p className="mt-4 flex items-start gap-2 text-sm text-white/80">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--gold)]" />
+            <span>{address}</span>
+          </p>
+        </div>
+
+        <div className="grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-4">
+          {/* Quick Links */}
+          <div className="lg:col-start-1">
+            <h4 className="mb-4 font-serif text-base font-semibold text-white">
+              Quick Links
+            </h4>
+            <ul className="flex flex-col gap-2 text-sm">
+              {QUICK_LINKS.map((l) => (
+                <li key={l.to}>
+                  <Link
+                    to={l.to}
+                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Locations */}
+          <div>
+            <h4 className="mb-4 font-serif text-base font-semibold text-white">
+              Popular Locations
+            </h4>
+            <ul className="flex flex-col gap-2 text-sm">
+              {(locations ?? []).slice(0, 6).map((loc) => (
+                <li key={loc.id}>
+                  <Link
+                    to="/locations/$slug"
+                    params={{ slug: loc.slug }}
+                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
+                  >
+                    {loc.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Featured Projects */}
+          <div>
+            <h4 className="mb-4 font-serif text-base font-semibold text-white">
+              Featured Projects
+            </h4>
+            <ul className="flex flex-col gap-2 text-sm">
+              {featured.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    to="/projects/$slug"
+                    params={{ slug: p.slug }}
+                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
+                  >
+                    {p.title}
+                  </Link>
+                </li>
+              ))}
+              {!featured.length
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <li
+                      key={i}
+                      className="h-4 w-32 animate-pulse rounded bg-white/10"
+                    />
+                  ))
+                : null}
+            </ul>
+          </div>
+
+          {/* Get in Touch */}
+          <div className="grid gap-10 md:grid-cols-1">
+
           <div>
             <Link to="/" className="mb-4 inline-flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-white/20 bg-white/5">
