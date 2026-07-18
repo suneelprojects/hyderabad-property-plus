@@ -99,7 +99,11 @@ function bannerImage(l?: Location): string {
 
 function LocationDetailPage() {
   const { slug } = Route.useParams();
-  const { data: location } = useLocation(slug);
+  const loaderData = Route.useLoaderData();
+  const { data: locationData } = useLocation(slug);
+  const location = locationData ?? undefined;
+  const displayTitle = location?.title ?? loaderData?.title ?? slug;
+
   const {
     data: projects,
     isLoading: projectsLoading,
