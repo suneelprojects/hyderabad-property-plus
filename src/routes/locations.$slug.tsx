@@ -219,17 +219,23 @@ function LocationDetailPage() {
         </Container>
       </section>
 
-      {/* Overview */}
-      {location?.content_html ? (
-        <section className="bg-white py-14">
-          <Container>
-            <div
-              className="prose prose-neutral mx-auto max-w-3xl text-center text-[16px] leading-relaxed text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: location.content_html }}
-            />
-          </Container>
-        </section>
-      ) : null}
+      {/* Overview — only shown when content is more than a repeat of the excerpt */}
+      {(() => {
+        if (!location?.content_html) return null;
+        const stripped = location.content_html.replace(/<[^>]+>/g, "").trim();
+        const excerpt = (location.excerpt ?? "").trim();
+        if (!stripped || stripped === excerpt) return null;
+        return (
+          <section className="bg-white py-14">
+            <Container>
+              <div
+                className="prose prose-neutral mx-auto max-w-3xl text-center text-[16px] leading-relaxed text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: location.content_html }}
+              />
+            </Container>
+          </section>
+        );
+      })()}
 
       {/* Projects in this location */}
       <section className="bg-[color:var(--mist)]/40 py-16 md:py-20">
