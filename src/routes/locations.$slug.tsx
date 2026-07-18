@@ -104,7 +104,7 @@ function LocationDetailPage() {
   const location = locationData ?? undefined;
   const slugTitle = slug
     .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
   const displayTitle =
     location?.title ?? loaderData?.title ?? slugTitle;
