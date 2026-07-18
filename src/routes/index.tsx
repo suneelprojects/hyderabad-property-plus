@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Curated inventory, transparent pricing, and a dedicated advisor for every buyer.",
+          "Premium residential projects across Hyderabad — Financial District, Kokapet, Gachibowli and more. Curated inventory, RERA-verified projects, and a dedicated advisor from first visit to key handover.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

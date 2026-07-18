@@ -80,11 +80,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hyderabad Realty Choices — Luxury Homes, Trusted Choices" },
+      { title: "Hyderabad Realty Choices — Luxury Homes & Trusted Real Estate" },
       {
         name: "description",
         content:
-          "Discover verified residential projects across Hyderabad. Premium apartments, villas, and plots with expert consultation from search to possession.",
+          "Premium residential projects across Hyderabad — Financial District, Kokapet, Gachibowli and more. Curated inventory, RERA-verified projects, and a dedicated advisor from first visit to key handover.",
       },
       { name: "author", content: "Hyderabad Realty Choices" },
       { name: "theme-color", content: "#0A1F44" },
@@ -94,15 +94,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         property: "og:title",
-        content: "Hyderabad Realty Choices — Luxury Homes, Trusted Choices",
+        content: "Hyderabad Realty Choices — Luxury Homes & Trusted Real Estate",
       },
       {
         property: "og:description",
         content:
-          "Discover verified residential projects across Hyderabad with trust, transparency, and expert guidance.",
+          "Premium residential projects across Hyderabad — Financial District, Kokapet, Gachibowli and more. Curated inventory, RERA-verified projects, and a dedicated advisor from first visit to key handover.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Hyderabad Realty Choices — Luxury Homes & Trusted Real Estate" },
+      { name: "twitter:description", content: "Premium residential projects across Hyderabad — Financial District, Kokapet, Gachibowli and more. Curated inventory, RERA-verified projects, and a dedicated advisor from first visit to key handover." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3b7b5bc-4838-4ee4-bd6f-e6c6843b0251/id-preview-825bad60--f809d773-41a3-47ae-9a4c-c7780d06e2c1.lovable.app-1784374202774.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3b7b5bc-4838-4ee4-bd6f-e6c6843b0251/id-preview-825bad60--f809d773-41a3-47ae-9a4c-c7780d06e2c1.lovable.app-1784374202774.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
