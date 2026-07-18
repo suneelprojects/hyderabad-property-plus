@@ -297,10 +297,10 @@ function ProjectHero({
               Book Site Visit
             </a>
           </Button>
-          {project.brochure_url ? (
-            <Button asChild variant="outline-white" size="lg">
+          {(project as unknown as { brochure_url?: string }).brochure_url ? (
+            <Button asChild variant="hero-outline" size="lg">
               <a
-                href={project.brochure_url as string}
+                href={(project as unknown as { brochure_url?: string }).brochure_url as string}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -309,14 +309,14 @@ function ProjectHero({
               </a>
             </Button>
           ) : (
-            <Button asChild variant="outline-white" size="lg">
+            <Button asChild variant="hero-outline" size="lg">
               <a href="#enquire">
                 <Download className="mr-2 h-4 w-4" />
                 Download Brochure
               </a>
             </Button>
           )}
-          <Button asChild variant="ghost-white" size="lg">
+          <Button asChild variant="hero-outline" size="lg">
             <a href={telUrl}>
               <Headphones className="mr-2 h-4 w-4" />
               Call Advisor
@@ -1082,13 +1082,13 @@ function EnquireCta({
                 Enquire Now
               </a>
             </Button>
-            <Button asChild variant="outline-white" size="lg" className="w-full">
+            <Button asChild variant="hero-outline" size="lg" className="w-full">
               <a href="#enquire">
                 <CalendarCheck className="mr-2 h-4 w-4" />
                 Book Site Visit
               </a>
             </Button>
-            <Button asChild variant="ghost-white" size="lg" className="w-full">
+            <Button asChild variant="hero-outline" size="lg" className="w-full">
               <a href={`tel:${phone.replace(/\s/g, "")}`}>
                 <Phone className="mr-2 h-4 w-4" />
                 {phone}
