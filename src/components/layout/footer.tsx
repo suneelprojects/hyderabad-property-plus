@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { Container } from "./container";
-import { useLocations, useMeta } from "@/hooks/queries";
+import { useLocations, useMeta, useProjects } from "@/hooks/queries";
 
 const QUICK_LINKS = [
   { label: "Home", to: "/" },
@@ -21,6 +21,8 @@ const QUICK_LINKS = [
   { label: "About Us", to: "/about" },
   { label: "Contact", to: "/contact" },
 ] as const;
+
+const DEFAULT_ADDRESS = "Financial District, Hyderabad, Telangana 500032";
 
 /**
  * Footer — four-column layout on desktop, stacked on mobile. Contact block
