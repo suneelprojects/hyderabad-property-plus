@@ -126,12 +126,12 @@ function ProjectsListingPage() {
     ) => Partial<typeof search>,
   ) => {
     navigate({
-      search: (prev) => ({ ...prev, ...updater(prev), page: 1 }),
+      search: (prev: typeof search) => ({ ...prev, ...updater(prev), page: 1 }),
     });
   };
 
   const goToPage = (n: number) => {
-    navigate({ search: (prev) => ({ ...prev, page: n }) });
+    navigate({ search: (prev: typeof search) => ({ ...prev, page: n }) });
     if (typeof window !== "undefined") window.scrollTo({ top: 200, behavior: "smooth" });
   };
 
@@ -149,7 +149,7 @@ function ProjectsListingPage() {
     });
 
   const setView = (view: "grid" | "list") =>
-    navigate({ search: (prev) => ({ ...prev, view }) });
+    navigate({ search: (prev: typeof search) => ({ ...prev, view }) });
 
   return (
     <PageShell
