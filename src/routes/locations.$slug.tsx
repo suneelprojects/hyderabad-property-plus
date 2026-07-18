@@ -121,7 +121,7 @@ function LocationDetailPage() {
   const waNumber = (meta?.whatsapp || meta?.phone || "").replace(/\D/g, "");
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
-        `Hi, I am interested in ${location?.title ?? "this location"}`,
+        `Hi, I am interested in ${displayTitle}`,
       )}`
     : undefined;
   const telHref = meta?.phone
