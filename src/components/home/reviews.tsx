@@ -66,7 +66,7 @@ export function Reviews() {
                   <span className="text-sm font-semibold text-[color:var(--navy)]">
                     {r.author}
                   </span>
-                  <Rating value={r.rating ?? 5} size="sm" />
+                  <Rating value={r.rating ?? 5} size={14} />
                 </div>
               </figcaption>
             </figure>
