@@ -87,6 +87,9 @@ export interface Project {
   specifications?: Record<string, string>;
   faqs?: FAQ[];
   nearby?: NearbyPlace[];
+  amenities_top4?: Array<string | { id: Id; name: string; icon?: string }>;
+  property_type?: string;
+  rera?: string;
 }
 
 export interface FAQ {
