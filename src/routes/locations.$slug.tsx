@@ -144,7 +144,7 @@ function LocationDetailPage() {
             items={[
               { label: "Home", href: "/" },
               { label: "Locations", href: "/locations" },
-              { label: location?.title ?? slug },
+              { label: displayTitle },
             ]}
             className="mb-6 text-white/80"
           />
@@ -153,14 +153,14 @@ function LocationDetailPage() {
             Location
           </span>
           <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-white md:text-5xl lg:text-6xl">
-            {location?.title ?? "Loading…"}
-            {location ? ", Hyderabad" : ""}
+            {displayTitle}, Hyderabad
           </h1>
-          {location?.excerpt ? (
+          {(location?.excerpt ?? loaderData?.description) ? (
             <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-white/85">
-              {location.excerpt}
+              {location?.excerpt ?? loaderData?.description}
             </p>
           ) : null}
+
 
           {/* Stat strip */}
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-10">
