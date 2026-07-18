@@ -63,8 +63,15 @@ export interface Location {
   content_html?: string;
   link?: string;
   featured_image?: string | false;
+  banner_image?: string | false;
+  card_image?: string | false;
+  price_from?: string;
+  connectivity?: string;
+  projects_count?: number;
   project_count?: number;
+  seo?: { title?: string; description?: string };
 }
+
 
 export interface Project {
   id: Id;
