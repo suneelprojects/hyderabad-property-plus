@@ -135,77 +135,8 @@ export function Footer() {
           </div>
 
           {/* Get in Touch */}
-          <div className="grid gap-10 md:grid-cols-1">
-
           <div>
-            <Link to="/" className="mb-4 inline-flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-white/20 bg-white/5">
-                <Building2 className="h-5 w-5 text-[color:var(--gold)]" />
-              </span>
-              <span className="flex flex-col leading-tight">
-                <span className="font-serif text-lg font-semibold text-white">
-                  Hyderabad Realty Choices
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)]">
-                  Luxury Homes · Trusted Choices
-                </span>
-              </span>
-            </Link>
-            <p className="text-sm leading-relaxed text-white/70">
-              Connecting buyers with verified residential projects across
-              Hyderabad through trust, transparency, and expert guidance.
-            </p>
-          </div>
 
-          {/* Quick links */}
-          <div>
-            <h4 className="mb-4 font-serif text-base font-semibold text-white">
-              Quick Links
-            </h4>
-            <ul className="flex flex-col gap-2 text-sm">
-              {QUICK_LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link
-                    to={l.to}
-                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Locations */}
-          <div>
-            <h4 className="mb-4 font-serif text-base font-semibold text-white">
-              Popular Locations
-            </h4>
-            <ul className="flex flex-col gap-2 text-sm">
-              {(locations ?? []).slice(0, 6).map((loc) => (
-                <li key={loc.id}>
-                  <Link
-                    to="/location/$slug"
-                    params={{ slug: loc.slug }}
-                    className="text-white/70 transition-colors hover:text-[color:var(--gold)]"
-                  >
-                    {loc.title}
-                  </Link>
-                </li>
-              ))}
-              {!locations?.length
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <li
-                      key={i}
-                      className="h-4 w-32 animate-pulse rounded bg-white/10"
-                    />
-                  ))
-                : null}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
             <h4 className="mb-4 font-serif text-base font-semibold text-white">
               Get in Touch
             </h4>
