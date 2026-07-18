@@ -230,11 +230,8 @@ function LocationDetailPage() {
         <Container>
           <SectionHeading
             eyebrow="Handpicked Developments"
-            title={
-              location
-                ? `Projects in ${location.title}`
-                : "Projects"
-            }
+            title={`Projects in ${displayTitle}`}
+
             subtitle="Every project below is RERA-verified and priced direct-from-builder."
             align="left"
             className="mb-10 border-b border-[color:var(--gold)]/30 pb-6"
