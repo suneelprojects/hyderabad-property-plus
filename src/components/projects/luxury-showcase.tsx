@@ -382,4 +382,3 @@ function Slide({
 }
 
 // Re-export Ruler so unused-import lint doesn't complain elsewhere in file
-export const _Ruler = Ruler;
