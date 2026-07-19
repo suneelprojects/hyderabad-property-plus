@@ -806,7 +806,7 @@ function FlatCard({ flat }: { flat: Flat }) {
               {flat.price ? formatPriceInr(flat.price) : "On Request"}
             </div>
           </div>
-          <button type="button" onClick={() => openEnquiry({ project: project.title })} className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]">
+          <button type="button" onClick={() => openEnquiry()} className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]">
             Enquire <Send className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -1106,11 +1106,11 @@ function MobileStickyBar({
           <MessageCircle className="h-4 w-4 text-[color:var(--gold)]" />
           WhatsApp
         </a>
-        <button type="button" onClick={() => openEnquiry({ project: project.title })} className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]">
+        <button type="button" onClick={() => openEnquiry()} className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <CalendarCheck className="h-4 w-4 text-[color:var(--gold)]" />
           Book Visit
         </button>
-        <button type="button" onClick={() => openEnquiry({ project: project.title })} className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]">
+        <button type="button" onClick={() => openEnquiry()} className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <Send className="h-4 w-4" />
           Enquire
         </button>
