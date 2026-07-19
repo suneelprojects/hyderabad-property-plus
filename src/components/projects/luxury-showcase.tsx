@@ -12,7 +12,7 @@ import {
   Download,
   Eye,
   MapPin,
-  Ruler,
+  
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
