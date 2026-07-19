@@ -94,7 +94,9 @@ export interface Project {
   specifications?: Record<string, string>;
   faqs?: FAQ[];
   nearby?: NearbyPlace[];
-  amenities_top4?: Array<string | { id: Id; name: string; icon?: string }>;
+  amenities_top4?: Array<
+    string | { id?: Id; name: string; icon?: string; desc?: string; order?: number }
+  >;
   property_type?: string;
   rera?: string;
 }
