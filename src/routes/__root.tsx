@@ -159,8 +159,8 @@ function RootComponent() {
             <Outlet />
           </div>
           <Footer />
-
-      </div>
+        </div>
+      </EnquiryProvider>
     </QueryClientProvider>
   );
 }
