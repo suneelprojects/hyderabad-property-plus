@@ -81,6 +81,7 @@ export function ProjectRow({
   project: Project;
   whatsapp?: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   const waNumber = (whatsapp ?? "").replace(/\D/g, "");
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
@@ -309,6 +310,7 @@ function buildHighlights(p: Project): string[] {
  * chip amenities (no circular initials), single primary action.
  */
 export function ProjectCard({ project }: { project: Project }) {
+  const { open: openEnquiry } = useEnquiry();
   const status = statusTone(project.status);
   const amenities = project.amenities_top4?.slice(0, 3) ?? [];
 
