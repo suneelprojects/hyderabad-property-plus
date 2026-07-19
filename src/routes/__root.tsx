@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { EnquiryProvider } from "@/components/enquiry-modal";
 
 function NotFoundComponent() {
   return (
