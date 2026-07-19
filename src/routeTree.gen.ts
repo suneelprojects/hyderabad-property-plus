@@ -15,6 +15,7 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as LocationsIndexRouteImport } from './routes/locations.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
+import { Route as LocationSlugRouteImport } from './routes/location.$slug'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -46,10 +47,16 @@ const LocationsSlugRoute = LocationsSlugRouteImport.update({
   path: '/locations/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocationSlugRoute = LocationSlugRouteImport.update({
+  id: '/location/$slug',
+  path: '/location/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations': typeof LocationsIndexRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/search'
+    | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations/'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/search'
+    | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/search'
+    | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations/'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SearchRoute: typeof SearchRoute
+  LocationSlugRoute: typeof LocationSlugRoute
   LocationsSlugRoute: typeof LocationsSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   LocationsIndexRoute: typeof LocationsIndexRoute
@@ -152,12 +165,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/location/$slug': {
+      id: '/location/$slug'
+      path: '/location/$slug'
+      fullPath: '/location/$slug'
+      preLoaderRoute: typeof LocationSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SearchRoute: SearchRoute,
+  LocationSlugRoute: LocationSlugRoute,
   LocationsSlugRoute: LocationsSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
   LocationsIndexRoute: LocationsIndexRoute,
@@ -166,13 +187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
