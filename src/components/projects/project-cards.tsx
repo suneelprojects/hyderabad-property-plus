@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useEnquiry } from "@/components/enquiry-modal";
 import type { Project } from "@/types/hrc";
 import { amenityIcon } from "./amenity-icon";
 
