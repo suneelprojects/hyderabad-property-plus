@@ -239,7 +239,6 @@ function ProjectHero({
   crumbs: Crumb[];
   telUrl: string;
 }) {
-}) {
   const { open: openEnquiry } = useEnquiry();
   return (
     <header className="relative isolate flex min-h-[560px] items-end overflow-hidden pt-[120px] text-white md:min-h-[640px]">
