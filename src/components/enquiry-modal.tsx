@@ -382,20 +382,38 @@ export function EnquiryModal({
               </Field>
             </div>
 
+            {formError ? (
+              <p
+                className="mt-4 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
+                {formError}
+              </p>
+            ) : null}
+
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={submitting}
                 className="sm:min-w-[120px]"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
+                disabled={submitting}
                 className="bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold-2)] hover:text-[var(--navy)] sm:min-w-[180px]"
               >
-                Submit Enquiry
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting…
+                  </>
+                ) : (
+                  "Submit Enquiry"
+                )}
               </Button>
             </div>
           </form>
