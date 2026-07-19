@@ -457,6 +457,7 @@ function PriceInformation({
   project: Project;
   telUrl: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   const priceLabel = project.price_from
     ? formatPriceInr(project.price_from)
     : "On Request";
@@ -758,6 +759,7 @@ function FilterField({
 
 function FlatCard({ flat }: { flat: Flat }) {
   const rec = flat as unknown as { tower?: string; floor?: string | number; status?: string };
+  const { open: openEnquiry } = useEnquiry();
   return (
     <div className="group overflow-hidden rounded-2xl border border-[color:var(--mist)] bg-white shadow-[0_10px_40px_-24px_rgba(10,31,68,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(10,31,68,.35)]">
       {flat.floor_plan ? (
