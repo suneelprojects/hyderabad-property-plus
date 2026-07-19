@@ -17,6 +17,7 @@ import {
 
 import { PageShell } from "@/components/layout/page-shell";
 import { Button } from "@/components/ui/button";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { EmptyState, ErrorState } from "@/components/ui/empty-state";
 import { useLocations, useMeta, useSearchQuery } from "@/hooks/queries";
 import type { Project } from "@/types/hrc";
@@ -633,6 +634,7 @@ function ProjectRow({
   project: Project;
   whatsapp?: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   const waNumber = (whatsapp ?? "").replace(/\D/g, "");
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
@@ -700,12 +702,8 @@ function ProjectRow({
             View Details
           </Link>
         </Button>
-        <Button variant="outline" asChild>
-          <a href="#contact">
-            <Mail className="h-4 w-4" />
-            Enquire Now
-          </a>
-        </Button>
+        <Button variant="outline" onClick={() => openEnquiry({ project: project.title })}><Mail className="h-4 w-4" />
+            Enquire Now</Button>
         {waHref ? (
           <Button asChild className="bg-[#25D366] text-white hover:bg-[#20b558]">
             <a href={waHref} target="_blank" rel="noopener noreferrer">

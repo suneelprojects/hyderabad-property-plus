@@ -4,6 +4,7 @@ import { Calendar, Mail, Phone, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMeta } from "@/hooks/queries";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
 
 interface Item {
@@ -27,6 +28,7 @@ export function MobileNav({
   activePath: string;
 }) {
   const { data: meta } = useMeta();
+  const { open: openEnquiry } = useEnquiry();
 
   return (
     <AnimatePresence>
@@ -121,14 +123,14 @@ export function MobileNav({
               <Button
                 variant="gold"
                 size="lg"
-                asChild
                 className="w-full"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  onOpenChange(false);
+                  openEnquiry();
+                }}
               >
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4" />
-                  Book Site Visit
-                </Link>
+                <Calendar className="h-4 w-4" />
+                Book Site Visit
               </Button>
             </div>
           </motion.aside>

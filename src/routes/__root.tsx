@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { EnquiryProvider } from "@/components/enquiry-modal";
 
 function NotFoundComponent() {
   return (
@@ -150,14 +151,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <div className={isHome ? "" : "pt-[72px]"}>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+      <EnquiryProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <div className={isHome ? "" : "pt-[72px]"}>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </EnquiryProvider>
     </QueryClientProvider>
   );
 }

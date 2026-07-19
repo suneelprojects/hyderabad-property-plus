@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "./container";
 import { MobileNav } from "./mobile-nav";
 import { useMeta } from "@/hooks/queries";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -33,6 +34,7 @@ export function Header() {
     select: (s) => s.location.pathname,
   });
   const { data: meta } = useMeta();
+  const { open: openEnquiry } = useEnquiry();
 
   const isHome = pathname === "/";
   const overHero = isHome && !scrolled;
@@ -150,13 +152,11 @@ export function Header() {
             <Button
               variant="gold"
               size="pill"
-              asChild
+              onClick={() => openEnquiry()}
               className="hidden md:inline-flex"
             >
-              <Link to="/contact">
-                <Calendar className="h-4 w-4" />
-                Book Site Visit
-              </Link>
+              <Calendar className="h-4 w-4" />
+              Book Site Visit
             </Button>
 
             {/* Mobile trigger */}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useEnquiry } from "@/components/enquiry-modal";
 import type { Project } from "@/types/hrc";
 import { amenityIcon } from "./amenity-icon";
 
@@ -80,6 +81,7 @@ export function ProjectRow({
   project: Project;
   whatsapp?: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   const waNumber = (whatsapp ?? "").replace(/\D/g, "");
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
@@ -230,18 +232,10 @@ export function ProjectRow({
                 View Project
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#contact">
-                <Download className="h-4 w-4" />
-                Brochure
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#contact">
-                <Calendar className="h-4 w-4" />
-                Site Visit
-              </a>
-            </Button>
+            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="h-4 w-4" />
+                Brochure</Button>
+            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Calendar className="h-4 w-4" />
+                Site Visit</Button>
             {waHref ? (
               <Button
                 asChild
@@ -308,6 +302,7 @@ function buildHighlights(p: Project): string[] {
  * chip amenities (no circular initials), single primary action.
  */
 export function ProjectCard({ project }: { project: Project }) {
+  const { open: openEnquiry } = useEnquiry();
   const status = statusTone(project.status);
   const amenities = project.amenities_top4?.slice(0, 3) ?? [];
 
@@ -402,11 +397,7 @@ export function ProjectCard({ project }: { project: Project }) {
               View Project
             </Link>
           </Button>
-          <Button asChild variant="outline" size="icon" aria-label="Enquire">
-            <a href="#contact">
-              <Eye className="h-4 w-4" />
-            </a>
-          </Button>
+          <Button variant="outline" size="icon" aria-label="Enquire" onClick={() => openEnquiry({ project: project.title })}><Eye className="h-4 w-4" /></Button>
         </div>
       </div>
     </article>

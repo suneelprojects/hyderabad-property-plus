@@ -28,6 +28,7 @@ import {
   Mail,
   Star,
 } from "lucide-react";
+import { useEnquiry } from "@/components/enquiry-modal";
 
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
@@ -238,6 +239,7 @@ function ProjectHero({
   crumbs: Crumb[];
   telUrl: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   return (
     <header className="relative isolate flex min-h-[560px] items-end overflow-hidden pt-[120px] text-white md:min-h-[640px]">
       <img
@@ -291,12 +293,8 @@ function ProjectHero({
         ) : null}
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild variant="gold" size="lg">
-            <a href="#enquire">
-              <CalendarCheck className="mr-2 h-4 w-4" />
-              Book Site Visit
-            </a>
-          </Button>
+          <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+              Book Site Visit</Button>
           {(project as unknown as { brochure_url?: string }).brochure_url ? (
             <Button asChild variant="hero-outline" size="lg">
               <a
@@ -309,12 +307,8 @@ function ProjectHero({
               </a>
             </Button>
           ) : (
-            <Button asChild variant="hero-outline" size="lg">
-              <a href="#enquire">
-                <Download className="mr-2 h-4 w-4" />
-                Download Brochure
-              </a>
-            </Button>
+            <Button variant="hero-outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
+                Download Brochure</Button>
           )}
           <Button asChild variant="hero-outline" size="lg">
             <a href={telUrl}>
@@ -463,6 +457,7 @@ function PriceInformation({
   project: Project;
   telUrl: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   const priceLabel = project.price_from
     ? formatPriceInr(project.price_from)
     : "On Request";
@@ -541,18 +536,10 @@ function PriceInformation({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button asChild variant="gold" size="lg">
-          <a href="#enquire">
-            <CalendarCheck className="mr-2 h-4 w-4" />
-            Book Site Visit
-          </a>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <a href="#enquire">
-            <Download className="mr-2 h-4 w-4" />
-            Download Brochure
-          </a>
-        </Button>
+        <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+            Book Site Visit</Button>
+        <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
+            Download Brochure</Button>
         <Button asChild variant="ghost" size="lg">
           <a href={telUrl}>
             <Headphones className="mr-2 h-4 w-4" />
@@ -772,6 +759,7 @@ function FilterField({
 
 function FlatCard({ flat }: { flat: Flat }) {
   const rec = flat as unknown as { tower?: string; floor?: string | number; status?: string };
+  const { open: openEnquiry } = useEnquiry();
   return (
     <div className="group overflow-hidden rounded-2xl border border-[color:var(--mist)] bg-white shadow-[0_10px_40px_-24px_rgba(10,31,68,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(10,31,68,.35)]">
       {flat.floor_plan ? (
@@ -818,12 +806,9 @@ function FlatCard({ flat }: { flat: Flat }) {
               {flat.price ? formatPriceInr(flat.price) : "On Request"}
             </div>
           </div>
-          <a
-            href="#enquire"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]"
-          >
+          <button type="button" onClick={() => openEnquiry()} className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]">
             Enquire <Send className="h-3.5 w-3.5" />
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -1037,6 +1022,7 @@ function EnquireCta({
   project: Project;
   phone: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   return (
     <section
       id="enquire"
@@ -1076,18 +1062,10 @@ function EnquireCta({
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <Button asChild variant="gold" size="lg" className="w-full">
-              <a href="#enquire">
-                <Mail className="mr-2 h-4 w-4" />
-                Enquire Now
-              </a>
-            </Button>
-            <Button asChild variant="hero-outline" size="lg" className="w-full">
-              <a href="#enquire">
-                <CalendarCheck className="mr-2 h-4 w-4" />
-                Book Site Visit
-              </a>
-            </Button>
+            <Button variant="gold" size="lg" className="w-full" onClick={() => openEnquiry({ project: project.title })}><Mail className="mr-2 h-4 w-4" />
+                Enquire Now</Button>
+            <Button variant="hero-outline" size="lg" className="w-full" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+                Book Site Visit</Button>
             <Button asChild variant="hero-outline" size="lg" className="w-full">
               <a href={`tel:${phone.replace(/\s/g, "")}`}>
                 <Phone className="mr-2 h-4 w-4" />
@@ -1110,6 +1088,7 @@ function MobileStickyBar({
   telUrl: string;
   whatsappUrl: string;
 }) {
+  const { open: openEnquiry } = useEnquiry();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--mist)] bg-white/95 backdrop-blur md:hidden">
       <div className="grid grid-cols-4">
@@ -1129,20 +1108,14 @@ function MobileStickyBar({
           <MessageCircle className="h-4 w-4 text-[color:var(--gold)]" />
           WhatsApp
         </a>
-        <a
-          href="#enquire"
-          className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]"
-        >
+        <button type="button" onClick={() => openEnquiry()} className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <CalendarCheck className="h-4 w-4 text-[color:var(--gold)]" />
           Book Visit
-        </a>
-        <a
-          href="#enquire"
-          className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]"
-        >
+        </button>
+        <button type="button" onClick={() => openEnquiry()} className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <Send className="h-4 w-4" />
           Enquire
-        </a>
+        </button>
       </div>
     </div>
   );
