@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "./container";
 import { MobileNav } from "./mobile-nav";
 import { useMeta } from "@/hooks/queries";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
