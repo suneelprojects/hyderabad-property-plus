@@ -123,14 +123,14 @@ export function MobileNav({
               <Button
                 variant="gold"
                 size="lg"
-                asChild
                 className="w-full"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  onOpenChange(false);
+                  openEnquiry();
+                }}
               >
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4" />
-                  Book Site Visit
-                </Link>
+                <Calendar className="h-4 w-4" />
+                Book Site Visit
               </Button>
             </div>
           </motion.aside>
