@@ -151,13 +151,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <div className={isHome ? "" : "pt-[72px]"}>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </div>
-        <Footer />
+      <EnquiryProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <div className={isHome ? "" : "pt-[72px]"}>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </div>
+          <Footer />
+
       </div>
     </QueryClientProvider>
   );
