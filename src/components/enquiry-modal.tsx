@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Building2, Sparkles, X } from "lucide-react";
+import { Building2, Loader2, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,15 +33,21 @@ const initialValues: EnquiryFormValues = {
 type Errors = Partial<Record<keyof EnquiryFormValues, string>>;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const mobileRegex = /^[+\d][\d\s-]{7,}$/;
+// Indian mobile: 10 digits starting 6-9, optionally with +91 / 0 prefix.
+const indianMobileRegex = /^(?:\+?91[\s-]?)?[6-9]\d{9}$/;
+
+function normalizeMobile(raw: string): string {
+  return raw.replace(/[\s-]/g, "");
+}
 
 function validate(values: EnquiryFormValues): Errors {
   const errors: Errors = {};
   if (!values.fullName.trim()) errors.fullName = "Please enter your full name.";
-  if (!values.mobile.trim()) {
+  const mobile = normalizeMobile(values.mobile.trim());
+  if (!mobile) {
     errors.mobile = "Please enter your mobile number.";
-  } else if (!mobileRegex.test(values.mobile.trim())) {
-    errors.mobile = "Enter a valid mobile number.";
+  } else if (!indianMobileRegex.test(mobile)) {
+    errors.mobile = "Enter a valid 10-digit Indian mobile number.";
   }
   if (values.email.trim() && !emailRegex.test(values.email.trim())) {
     errors.email = "Enter a valid email address.";
