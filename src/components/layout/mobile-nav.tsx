@@ -28,6 +28,7 @@ export function MobileNav({
   activePath: string;
 }) {
   const { data: meta } = useMeta();
+  const { open: openEnquiry } = useEnquiry();
 
   return (
     <AnimatePresence>
