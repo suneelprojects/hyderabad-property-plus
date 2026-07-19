@@ -58,7 +58,7 @@ function validate(values: EnquiryFormValues): Errors {
 // ---------------------------------------------------------------------------
 // Global provider + hook
 
-type OpenOptions = { project?: string };
+type OpenOptions = { project?: string; projectId?: string | number };
 
 type EnquiryContextValue = {
   open: (options?: OpenOptions) => void;
@@ -79,9 +79,11 @@ export function useEnquiry(): EnquiryContextValue {
 export function EnquiryProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [project, setProject] = React.useState<string>("");
+  const [projectId, setProjectId] = React.useState<string>("");
 
   const open = React.useCallback((options?: OpenOptions) => {
     setProject(options?.project ?? "");
+    setProjectId(options?.projectId != null ? String(options.projectId) : "");
     setIsOpen(true);
   }, []);
 
@@ -99,6 +101,7 @@ export function EnquiryProvider({ children }: { children: React.ReactNode }) {
         open={isOpen}
         onOpenChange={setIsOpen}
         defaultProject={project}
+        defaultProjectId={projectId}
       />
     </EnquiryContext.Provider>
   );
@@ -111,6 +114,7 @@ export interface EnquiryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultProject?: string;
+  defaultProjectId?: string;
   title?: string;
   subtitle?: string;
   onSubmit?: (values: EnquiryFormValues) => void;
@@ -120,6 +124,7 @@ export function EnquiryModal({
   open,
   onOpenChange,
   defaultProject = "",
+  defaultProjectId = "",
   title = "Book a Free Site Visit",
   subtitle = "Share a few details and our senior advisor will call within one business hour.",
   onSubmit,
@@ -129,12 +134,16 @@ export function EnquiryModal({
     project: defaultProject,
   });
   const [errors, setErrors] = React.useState<Errors>({});
+  const [submitting, setSubmitting] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   // Reset form + prefill project whenever the modal opens.
   React.useEffect(() => {
     if (open) {
       setValues({ ...initialValues, project: defaultProject });
       setErrors({});
+      setFormError(null);
+      setSubmitting(false);
     }
   }, [open, defaultProject]);
 
@@ -144,22 +153,81 @@ export function EnquiryModal({
   ) => {
     setValues((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (formError) setFormError(null);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (submitting) return;
     const nextErrors = validate(values);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    // eslint-disable-next-line no-console
-    console.log("[EnquiryModal] submit", values);
-    onSubmit?.(values);
-    onOpenChange(false);
+    setSubmitting(true);
+    setFormError(null);
+
+    const payload = {
+      name: values.fullName.trim(),
+      mobile: normalizeMobile(values.mobile.trim()),
+      email: values.email.trim(),
+      project: values.project.trim(),
+      visit_date: values.visitDate,
+      message: values.message.trim(),
+      project_id: defaultProjectId,
+      source:
+        typeof window !== "undefined"
+          ? window.location.pathname + window.location.search
+          : "headless-web",
+    };
+
+    try {
+      const res = await fetch("/api/public/enquiry", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      let json: {
+        success?: boolean;
+        data?: { message?: string };
+      } | null = null;
+      try {
+        json = await res.json();
+      } catch {
+        /* ignore */
+      }
+
+      if (res.ok && json?.success) {
+        const msg =
+          json.data?.message ??
+          "Thanks! Your enquiry has been received.";
+        toast.success(msg);
+        onSubmit?.(values);
+        onOpenChange(false);
+        return;
+      }
+
+      const msg =
+        json?.data?.message ??
+        "Something went wrong. Please try again in a moment.";
+      setFormError(msg);
+    } catch (err) {
+      setFormError(
+        (err as Error)?.message ??
+          "Network error. Please check your connection and try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (submitting && !next) return;
+        onOpenChange(next);
+      }}
+    >
       <DialogPrimitive.Portal>
         {/* Backdrop — dark semi-transparent + slight blur of page behind */}
         <DialogPrimitive.Overlay
