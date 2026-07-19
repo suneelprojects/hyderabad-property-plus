@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Building2, Sparkles, X } from "lucide-react";
+import { Building2, Loader2, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,15 +33,21 @@ const initialValues: EnquiryFormValues = {
 type Errors = Partial<Record<keyof EnquiryFormValues, string>>;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const mobileRegex = /^[+\d][\d\s-]{7,}$/;
+// Indian mobile: 10 digits starting 6-9, optionally with +91 / 0 prefix.
+const indianMobileRegex = /^(?:\+?91[\s-]?)?[6-9]\d{9}$/;
+
+function normalizeMobile(raw: string): string {
+  return raw.replace(/[\s-]/g, "");
+}
 
 function validate(values: EnquiryFormValues): Errors {
   const errors: Errors = {};
   if (!values.fullName.trim()) errors.fullName = "Please enter your full name.";
-  if (!values.mobile.trim()) {
+  const mobile = normalizeMobile(values.mobile.trim());
+  if (!mobile) {
     errors.mobile = "Please enter your mobile number.";
-  } else if (!mobileRegex.test(values.mobile.trim())) {
-    errors.mobile = "Enter a valid mobile number.";
+  } else if (!indianMobileRegex.test(mobile)) {
+    errors.mobile = "Enter a valid 10-digit Indian mobile number.";
   }
   if (values.email.trim() && !emailRegex.test(values.email.trim())) {
     errors.email = "Enter a valid email address.";
@@ -51,7 +58,7 @@ function validate(values: EnquiryFormValues): Errors {
 // ---------------------------------------------------------------------------
 // Global provider + hook
 
-type OpenOptions = { project?: string };
+type OpenOptions = { project?: string; projectId?: string | number };
 
 type EnquiryContextValue = {
   open: (options?: OpenOptions) => void;
@@ -72,9 +79,11 @@ export function useEnquiry(): EnquiryContextValue {
 export function EnquiryProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [project, setProject] = React.useState<string>("");
+  const [projectId, setProjectId] = React.useState<string>("");
 
   const open = React.useCallback((options?: OpenOptions) => {
     setProject(options?.project ?? "");
+    setProjectId(options?.projectId != null ? String(options.projectId) : "");
     setIsOpen(true);
   }, []);
 
@@ -92,6 +101,7 @@ export function EnquiryProvider({ children }: { children: React.ReactNode }) {
         open={isOpen}
         onOpenChange={setIsOpen}
         defaultProject={project}
+        defaultProjectId={projectId}
       />
     </EnquiryContext.Provider>
   );
@@ -104,6 +114,7 @@ export interface EnquiryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultProject?: string;
+  defaultProjectId?: string;
   title?: string;
   subtitle?: string;
   onSubmit?: (values: EnquiryFormValues) => void;
@@ -113,6 +124,7 @@ export function EnquiryModal({
   open,
   onOpenChange,
   defaultProject = "",
+  defaultProjectId = "",
   title = "Book a Free Site Visit",
   subtitle = "Share a few details and our senior advisor will call within one business hour.",
   onSubmit,
@@ -122,12 +134,16 @@ export function EnquiryModal({
     project: defaultProject,
   });
   const [errors, setErrors] = React.useState<Errors>({});
+  const [submitting, setSubmitting] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   // Reset form + prefill project whenever the modal opens.
   React.useEffect(() => {
     if (open) {
       setValues({ ...initialValues, project: defaultProject });
       setErrors({});
+      setFormError(null);
+      setSubmitting(false);
     }
   }, [open, defaultProject]);
 
@@ -137,22 +153,81 @@ export function EnquiryModal({
   ) => {
     setValues((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (formError) setFormError(null);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (submitting) return;
     const nextErrors = validate(values);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    // eslint-disable-next-line no-console
-    console.log("[EnquiryModal] submit", values);
-    onSubmit?.(values);
-    onOpenChange(false);
+    setSubmitting(true);
+    setFormError(null);
+
+    const payload = {
+      name: values.fullName.trim(),
+      mobile: normalizeMobile(values.mobile.trim()),
+      email: values.email.trim(),
+      project: values.project.trim(),
+      visit_date: values.visitDate,
+      message: values.message.trim(),
+      project_id: defaultProjectId,
+      source:
+        typeof window !== "undefined"
+          ? window.location.pathname + window.location.search
+          : "headless-web",
+    };
+
+    try {
+      const res = await fetch("/api/public/enquiry", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      let json: {
+        success?: boolean;
+        data?: { message?: string };
+      } | null = null;
+      try {
+        json = await res.json();
+      } catch {
+        /* ignore */
+      }
+
+      if (res.ok && json?.success) {
+        const msg =
+          json.data?.message ??
+          "Thanks! Your enquiry has been received.";
+        toast.success(msg);
+        onSubmit?.(values);
+        onOpenChange(false);
+        return;
+      }
+
+      const msg =
+        json?.data?.message ??
+        "Something went wrong. Please try again in a moment.";
+      setFormError(msg);
+    } catch (err) {
+      setFormError(
+        (err as Error)?.message ??
+          "Network error. Please check your connection and try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (submitting && !next) return;
+        onOpenChange(next);
+      }}
+    >
       <DialogPrimitive.Portal>
         {/* Backdrop — dark semi-transparent + slight blur of page behind */}
         <DialogPrimitive.Overlay
@@ -307,20 +382,38 @@ export function EnquiryModal({
               </Field>
             </div>
 
+            {formError ? (
+              <p
+                className="mt-4 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                role="alert"
+              >
+                {formError}
+              </p>
+            ) : null}
+
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={submitting}
                 className="sm:min-w-[120px]"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
+                disabled={submitting}
                 className="bg-[var(--gold)] text-[var(--navy)] hover:bg-[var(--gold-2)] hover:text-[var(--navy)] sm:min-w-[180px]"
               >
-                Submit Enquiry
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting…
+                  </>
+                ) : (
+                  "Submit Enquiry"
+                )}
               </Button>
             </div>
           </form>

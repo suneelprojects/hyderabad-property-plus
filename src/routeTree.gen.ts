@@ -16,6 +16,7 @@ import { Route as LocationsIndexRouteImport } from './routes/locations.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
 import { Route as LocationSlugRouteImport } from './routes/location.$slug'
+import { Route as ApiPublicEnquiryRouteImport } from './routes/api/public/enquiry'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -52,6 +53,11 @@ const LocationSlugRoute = LocationSlugRouteImport.update({
   path: '/location/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEnquiryRoute = ApiPublicEnquiryRouteImport.update({
+  id: '/api/public/enquiry',
+  path: '/api/public/enquiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations': typeof LocationsIndexRoute
   '/projects': typeof ProjectsIndexRoute
+  '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/locations/'
     | '/projects/'
+    | '/api/public/enquiry'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/locations'
     | '/projects'
+    | '/api/public/enquiry'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/locations/'
     | '/projects/'
+    | '/api/public/enquiry'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   LocationsIndexRoute: typeof LocationsIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
+  ApiPublicEnquiryRoute: typeof ApiPublicEnquiryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/enquiry': {
+      id: '/api/public/enquiry'
+      path: '/api/public/enquiry'
+      fullPath: '/api/public/enquiry'
+      preLoaderRoute: typeof ApiPublicEnquiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsSlugRoute: ProjectsSlugRoute,
   LocationsIndexRoute: LocationsIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
+  ApiPublicEnquiryRoute: ApiPublicEnquiryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
