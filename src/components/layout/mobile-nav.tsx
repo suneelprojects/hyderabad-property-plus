@@ -4,6 +4,7 @@ import { Calendar, Mail, Phone, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMeta } from "@/hooks/queries";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
 
 interface Item {
