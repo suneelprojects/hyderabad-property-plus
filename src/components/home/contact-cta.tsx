@@ -1,40 +1,24 @@
-import { useState } from "react";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 
 import { Section } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { useEnquiry } from "@/components/enquiry-modal";
 import { useMeta } from "@/hooks/queries";
 
 /**
- * ContactCta — the "Talk to us / Let's find your address in Hyderabad"
- * closing section. Left column shows contact info from /meta; right column
- * is a lightweight enquiry form (client-side only — submits to mailto for now).
+ * ContactCta — the closing "Let's find your address in Hyderabad" section.
+ * Left column: contact info from /meta. Right column: luxury card that
+ * opens the global enquiry modal.
  */
 export function ContactCta() {
   const { data: meta } = useMeta();
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    message: "",
-  });
+  const { open: openEnquiry } = useEnquiry();
 
   const address =
     meta?.address ?? "Financial District, Hyderabad, Telangana 500032";
   const contactEmail = meta?.email ?? "contact@hyderabadrealtychoices.com";
   const contactPhone = meta?.phone ?? "+91 90000 00000";
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(`Enquiry from ${form.name || "website"}`);
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\n\nMessage:\n${form.message}`,
-    );
-    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
-    setSubmitted(true);
-  };
 
   return (
     <Section id="contact" alt>
@@ -82,102 +66,38 @@ export function ContactCta() {
           </ul>
         </div>
 
-        {/* Right — form card */}
-        <form
-          onSubmit={onSubmit}
-          className="rounded-[var(--radius)] bg-white p-6 shadow-[var(--shadow-soft)] md:p-8"
-        >
+        {/* Right — CTA card */}
+        <div className="rounded-[var(--radius)] bg-white p-8 shadow-[var(--shadow-soft)] md:p-10">
           <h3 className="font-serif text-2xl font-semibold text-[color:var(--navy)]">
             Enquire Now
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            A senior advisor will reach out within 1 business hour.
+          <p className="mt-2 text-sm text-muted-foreground">
+            A senior advisor will reach out within 1 business hour. Zero
+            brokerage. RERA-compliant.
           </p>
-
-          <div className="mt-6 flex flex-col gap-4">
-            <FormField
-              label="Full Name"
-              value={form.name}
-              onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-              required
-            />
-            <FormField
-              label="Mobile Number"
-              type="tel"
-              value={form.phone}
-              onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-              required
-            />
-            <FormField
-              label="Email Address"
-              type="email"
-              value={form.email}
-              onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-              required
-            />
-            <div className="flex flex-col gap-2">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--gold-2)]">
-                Message (optional)
-              </label>
-              <textarea
-                rows={4}
-                value={form.message}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, message: e.target.value }))
-                }
-                placeholder="Tell us what you are looking for…"
-                className="hrc-input"
-              />
-            </div>
-
+          <div className="mt-6 flex flex-col gap-3">
             <Button
-              type="submit"
+              type="button"
               variant="gold"
               size="lg"
-              className="mt-2 rounded-full"
+              className="rounded-full"
+              onClick={() => openEnquiry()}
             >
-              Submit
+              Start your enquiry
               <ArrowRight className="h-4 w-4" />
             </Button>
-
-            {submitted ? (
-              <p className="text-sm text-[color:var(--gold-2)]">
-                Thanks! Your email client should open with the enquiry
-                pre-filled.
-              </p>
-            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="rounded-full"
+              onClick={() => openEnquiry()}
+            >
+              Book a Site Visit
+            </Button>
           </div>
-        </form>
+        </div>
       </div>
     </Section>
-  );
-}
-
-function FormField({
-  label,
-  value,
-  onChange,
-  type = "text",
-  required,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--gold-2)]">
-        {label}
-      </label>
-      <input
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="hrc-input"
-      />
-    </div>
   );
 }
