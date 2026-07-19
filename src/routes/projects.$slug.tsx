@@ -293,12 +293,8 @@ function ProjectHero({
         ) : null}
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild variant="gold" size="lg">
-            <a href="#enquire">
-              <CalendarCheck className="mr-2 h-4 w-4" />
-              Book Site Visit
-            </a>
-          </Button>
+          <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+              Book Site Visit</Button>
           {(project as unknown as { brochure_url?: string }).brochure_url ? (
             <Button asChild variant="hero-outline" size="lg">
               <a
@@ -311,12 +307,8 @@ function ProjectHero({
               </a>
             </Button>
           ) : (
-            <Button asChild variant="hero-outline" size="lg">
-              <a href="#enquire">
-                <Download className="mr-2 h-4 w-4" />
-                Download Brochure
-              </a>
-            </Button>
+            <Button variant="hero-outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
+                Download Brochure</Button>
           )}
           <Button asChild variant="hero-outline" size="lg">
             <a href={telUrl}>
@@ -543,18 +535,10 @@ function PriceInformation({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button asChild variant="gold" size="lg">
-          <a href="#enquire">
-            <CalendarCheck className="mr-2 h-4 w-4" />
-            Book Site Visit
-          </a>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <a href="#enquire">
-            <Download className="mr-2 h-4 w-4" />
-            Download Brochure
-          </a>
-        </Button>
+        <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+            Book Site Visit</Button>
+        <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
+            Download Brochure</Button>
         <Button asChild variant="ghost" size="lg">
           <a href={telUrl}>
             <Headphones className="mr-2 h-4 w-4" />
@@ -820,12 +804,9 @@ function FlatCard({ flat }: { flat: Flat }) {
               {flat.price ? formatPriceInr(flat.price) : "On Request"}
             </div>
           </div>
-          <a
-            href="#enquire"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]"
-          >
+          <button type="button" onClick={() => openEnquiry({ project: project.title })} className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]">
             Enquire <Send className="h-3.5 w-3.5" />
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -1078,18 +1059,10 @@ function EnquireCta({
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <Button asChild variant="gold" size="lg" className="w-full">
-              <a href="#enquire">
-                <Mail className="mr-2 h-4 w-4" />
-                Enquire Now
-              </a>
-            </Button>
-            <Button asChild variant="hero-outline" size="lg" className="w-full">
-              <a href="#enquire">
-                <CalendarCheck className="mr-2 h-4 w-4" />
-                Book Site Visit
-              </a>
-            </Button>
+            <Button variant="gold" size="lg" className="w-full" onClick={() => openEnquiry({ project: project.title })}><Mail className="mr-2 h-4 w-4" />
+                Enquire Now</Button>
+            <Button variant="hero-outline" size="lg" className="w-full" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
+                Book Site Visit</Button>
             <Button asChild variant="hero-outline" size="lg" className="w-full">
               <a href={`tel:${phone.replace(/\s/g, "")}`}>
                 <Phone className="mr-2 h-4 w-4" />
@@ -1131,20 +1104,14 @@ function MobileStickyBar({
           <MessageCircle className="h-4 w-4 text-[color:var(--gold)]" />
           WhatsApp
         </a>
-        <a
-          href="#enquire"
-          className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]"
-        >
+        <button type="button" onClick={() => openEnquiry({ project: project.title })} className="flex flex-col items-center gap-1 py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <CalendarCheck className="h-4 w-4 text-[color:var(--gold)]" />
           Book Visit
-        </a>
-        <a
-          href="#enquire"
-          className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]"
-        >
+        </button>
+        <button type="button" onClick={() => openEnquiry({ project: project.title })} className="flex flex-col items-center gap-1 bg-[color:var(--gold)] py-3 text-[11px] font-semibold text-[color:var(--navy)]">
           <Send className="h-4 w-4" />
           Enquire
-        </a>
+        </button>
       </div>
     </div>
   );
