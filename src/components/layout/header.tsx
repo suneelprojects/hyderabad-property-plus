@@ -150,13 +150,11 @@ export function Header() {
             <Button
               variant="gold"
               size="pill"
-              asChild
+              onClick={() => openEnquiry()}
               className="hidden md:inline-flex"
             >
-              <Link to="/contact">
-                <Calendar className="h-4 w-4" />
-                Book Site Visit
-              </Link>
+              <Calendar className="h-4 w-4" />
+              Book Site Visit
             </Button>
 
             {/* Mobile trigger */}
