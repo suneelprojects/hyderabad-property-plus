@@ -28,6 +28,7 @@ import {
   Mail,
   Star,
 } from "lucide-react";
+import { useEnquiry } from "@/components/enquiry-modal";
 
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
