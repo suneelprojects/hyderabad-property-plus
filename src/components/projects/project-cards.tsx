@@ -232,18 +232,10 @@ export function ProjectRow({
                 View Project
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#contact">
-                <Download className="h-4 w-4" />
-                Brochure
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#contact">
-                <Calendar className="h-4 w-4" />
-                Site Visit
-              </a>
-            </Button>
+            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="h-4 w-4" />
+                Brochure</Button>
+            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Calendar className="h-4 w-4" />
+                Site Visit</Button>
             {waHref ? (
               <Button
                 asChild
@@ -405,11 +397,7 @@ export function ProjectCard({ project }: { project: Project }) {
               View Project
             </Link>
           </Button>
-          <Button asChild variant="outline" size="icon" aria-label="Enquire">
-            <a href="#contact">
-              <Eye className="h-4 w-4" />
-            </a>
-          </Button>
+          <Button variant="outline" size="icon" aria-label="Enquire" onClick={() => openEnquiry({ project: project.title })}><Eye className="h-4 w-4" /></Button>
         </div>
       </div>
     </article>
