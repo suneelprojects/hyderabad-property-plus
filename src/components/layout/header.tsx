@@ -34,6 +34,7 @@ export function Header() {
     select: (s) => s.location.pathname,
   });
   const { data: meta } = useMeta();
+  const { open: openEnquiry } = useEnquiry();
 
   const isHome = pathname === "/";
   const overHero = isHome && !scrolled;
