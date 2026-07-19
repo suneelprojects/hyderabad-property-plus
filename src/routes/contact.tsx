@@ -10,7 +10,6 @@ import {
   Phone,
 } from "lucide-react";
 
-import { PageShell } from "@/components/layout/page-shell";
 import { Section } from "@/components/layout/section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,7 @@ function ContactPage() {
   const telHref = `tel:${phone.replace(/\s+/g, "")}`;
 
   return (
-    <PageShell>
+    <>
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-[color:var(--navy)] text-white">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[color:var(--navy)] via-[#0d264f] to-[color:var(--navy)]" />
@@ -168,7 +167,7 @@ function ContactPage() {
           </div>
         </div>
       </Section>
-    </PageShell>
+    </>
   );
 }
 

@@ -17,7 +17,6 @@ import {
   Users,
 } from "lucide-react";
 
-import { PageShell } from "@/components/layout/page-shell";
 import { Section } from "@/components/layout/section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,7 @@ function AboutPage() {
   const { open } = useEnquiry();
 
   return (
-    <PageShell>
+    <>
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-[color:var(--navy)] text-white">
         <div
@@ -295,6 +294,6 @@ function AboutPage() {
           </div>
         </div>
       </Section>
-    </PageShell>
+    </>
   );
 }
