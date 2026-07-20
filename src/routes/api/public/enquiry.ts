@@ -14,7 +14,7 @@ import { createFileRoute } from "@tanstack/react-router";
  * No new storage or business logic — WordPress remains the source of truth.
  */
 
-const WP_HOME = "https://hyderabadrealtychoices.com/";
+const WP_HOME = "https://cms.hyderabadrealtychoices.com/";
 
 type HrcBootstrap = { ajaxUrl: string; nonce: string };
 
