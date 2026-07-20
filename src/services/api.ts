@@ -5,7 +5,8 @@
  * a component or hook.
  */
 
-const DEFAULT_BASE = "https://hyderabadrealtychoices.com/wp-json/hrc/v1";
+const WORDPRESS_BASE_URL = "https://cms.hyderabadrealtychoices.com";
+const DEFAULT_BASE = `${WORDPRESS_BASE_URL}/wp-json/hrc/v1`;
 
 export const HRC_API_BASE: string =
   (import.meta.env.VITE_HRC_API_BASE as string | undefined)?.replace(
@@ -17,7 +18,7 @@ export const HRC_SITE_URL: string =
   (import.meta.env.VITE_HRC_SITE_URL as string | undefined)?.replace(
     /\/$/,
     "",
-  ) ?? "https://hyderabadrealtychoices.com";
+  ) ?? WORDPRESS_BASE_URL;
 
 export class HrcApiError extends Error {
   status: number;
