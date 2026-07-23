@@ -1,9 +1,11 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { MessageCircle, X } from "lucide-react";
 
-import { useMeta, useProject, useLocation } from "@/hooks/queries";
+import { useMeta } from "@/hooks/queries";
+import { projectQueryOptions, locationQueryOptions } from "@/hooks/queries/options";
 import { buildWaLink, WA_MESSAGES } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -27,8 +29,14 @@ export function FloatingWhatsApp() {
   const projectMatch = pathname.match(/^\/projects\/([^/]+)$/);
   const locationMatch = pathname.match(/^\/locations\/([^/]+)$/);
 
-  const { data: project } = useProject(projectMatch?.[1] ?? "");
-  const { data: location } = useLocation(locationMatch?.[1] ?? "");
+  const { data: project } = useQuery({
+    ...projectQueryOptions(projectMatch?.[1] ?? ""),
+    enabled: !!projectMatch,
+  });
+  const { data: location } = useQuery({
+    ...locationQueryOptions(locationMatch?.[1] ?? ""),
+    enabled: !!locationMatch,
+  });
 
   const message = React.useMemo(() => {
     if (projectMatch) {
