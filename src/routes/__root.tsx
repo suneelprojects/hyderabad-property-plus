@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { EnquiryProvider } from "@/components/enquiry-modal";
+import { FloatingWhatsApp } from "@/components/whatsapp/floating-whatsapp";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -161,6 +162,7 @@ function RootComponent() {
           </div>
           <Footer />
         </div>
+        <FloatingWhatsApp />
         <Toaster position="top-center" richColors />
       </EnquiryProvider>
     </QueryClientProvider>
