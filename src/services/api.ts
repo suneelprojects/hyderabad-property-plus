@@ -5,8 +5,11 @@
  * a component or hook.
  */
 
+import { decodeEntities } from "@/lib/html";
+
 const WORDPRESS_BASE_URL = "https://cms.hyderabadrealtychoices.com";
 const DEFAULT_BASE = `${WORDPRESS_BASE_URL}/wp-json/hrc/v1`;
+
 
 export const HRC_API_BASE: string =
   (import.meta.env.VITE_HRC_API_BASE as string | undefined)?.replace(
