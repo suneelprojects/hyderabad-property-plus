@@ -208,19 +208,21 @@ function ProjectDetail() {
         heroImage={heroImage}
         crumbs={crumbs}
         telUrl={telUrl}
+        phone={phone}
       />
       <QuickFacts project={project} />
-      <ProjectOverview project={project} telUrl={telUrl} />
-      <PriceInformation project={project} telUrl={telUrl} />
+      <ProjectOverview project={project} phone={phone} />
       <AvailableFlats project={project} />
       <AmenitiesSection project={project} />
       <SpecificationsSection project={project} />
       <NearbySection project={project} />
       <FaqSection project={project} />
       <EnquireCta project={project} phone={phone} />
+      <PriceInformation project={project} phone={phone} />
       <MobileStickyBar
         telUrl={telUrl}
         whatsappUrl={whatsappUrl}
+        phone={phone}
       />
     </>
   );
