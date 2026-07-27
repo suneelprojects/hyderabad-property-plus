@@ -516,12 +516,12 @@ function ProjectOverview({
 
 function PriceInformation({
   project,
-  telUrl,
+  phone,
 }: {
   project: Project;
-  telUrl: string;
+  phone: string;
 }) {
-  const { open: openEnquiry } = useEnquiry();
+  const { bookVisit, downloadBrochure, callAdvisor } = useLeadGate();
   const priceLabel = project.price_from
     ? formatPriceInr(project.price_from)
     : "On Request";
@@ -600,15 +600,17 @@ function PriceInformation({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
-            Book Site Visit</Button>
-        <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
-            Download Brochure</Button>
-        <Button asChild variant="ghost" size="lg">
-          <a href={telUrl}>
-            <Headphones className="mr-2 h-4 w-4" />
-            Talk to Advisor
-          </a>
+        <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
+          <CalendarCheck className="mr-2 h-4 w-4" />
+          Book Site Visit
+        </Button>
+        <Button variant="outline" size="lg" onClick={() => downloadBrochure(project)}>
+          <Download className="mr-2 h-4 w-4" />
+          Download Brochure
+        </Button>
+        <Button variant="ghost" size="lg" onClick={() => callAdvisor(project, phone)}>
+          <Headphones className="mr-2 h-4 w-4" />
+          Talk to Advisor
         </Button>
       </div>
     </Section>
