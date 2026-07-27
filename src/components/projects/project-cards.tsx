@@ -13,8 +13,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useEnquiry } from "@/components/enquiry-modal";
+import { decodeEntities } from "@/lib/html";
 import type { Project } from "@/types/hrc";
-import { amenityIcon } from "./amenity-icon";
 
 const FALLBACK_IMG =
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80";
@@ -33,8 +33,13 @@ export function priceLabel(p: Project): string {
   return /^[₹$]/.test(s) ? s : `₹ ${s}`;
 }
 
-function amenityName(a: NonNullable<Project["amenities_top4"]>[number]): string {
-  return typeof a === "string" ? a : a.name;
+function locationTitle(p: Project): string | undefined {
+  const t = p.location?.title;
+  return t ? decodeEntities(t) : undefined;
+}
+
+function projectTitle(p: Project): string {
+  return decodeEntities(p.title ?? "");
 }
 
 function statusTone(status?: string): {
@@ -69,10 +74,18 @@ export function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+function waLink(project: Project, whatsapp?: string): string | undefined {
+  const waNumber = (whatsapp ?? "").replace(/\D/g, "");
+  if (!waNumber) return undefined;
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(
+    `Hi, I am interested in ${projectTitle(project)}. Please share details.`,
+  )}`;
+}
+
 /**
- * ProjectRow — premium horizontal card. Left: dominant image with floating
- * badges + amenity ribbon. Right: builder, name, price, configuration,
- * possession, luxury chips, amenity icons, and a hierarchical CTA row.
+ * ProjectRow — premium horizontal card. Compact layout: image left,
+ * details right with tighter spacing, single-row CTA (View / Brochure /
+ * WhatsApp icon), no amenities block, 2-line description, up to 4 chips.
  */
 export function ProjectRow({
   project,
@@ -82,27 +95,23 @@ export function ProjectRow({
   whatsapp?: string;
 }) {
   const { open: openEnquiry } = useEnquiry();
-  const waNumber = (whatsapp ?? "").replace(/\D/g, "");
-  const waHref = waNumber
-    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
-        `Hi, I am interested in ${project.title}. Please share details.`,
-      )}`
-    : undefined;
+  const waHref = waLink(project, whatsapp);
 
   const status = statusTone(project.status);
   const photos = project.gallery?.length ?? 0;
-  const highlights = buildHighlights(project);
-  const amenities = project.amenities_top4?.slice(0, 6) ?? [];
+  const highlights = buildHighlights(project).slice(0, 4);
+  const locTitle = locationTitle(project);
+  const title = projectTitle(project);
 
   return (
     <article className="group relative overflow-hidden rounded-[24px] border border-black/[0.04] bg-white shadow-[0_1px_2px_rgba(10,31,68,.04),0_20px_50px_-30px_rgba(10,31,68,.18)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(10,31,68,.04),0_30px_70px_-30px_rgba(10,31,68,.28)]">
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         {/* IMAGE */}
-        <div className="relative overflow-hidden bg-[color:var(--mist)]/40 lg:min-h-[520px]">
+        <div className="relative overflow-hidden bg-[color:var(--mist)]/40 lg:min-h-[360px]">
           <div className="aspect-[4/3] lg:absolute lg:inset-0 lg:aspect-auto">
             <img
               src={projectImage(project)}
-              alt={project.title}
+              alt={title}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
             />
@@ -110,19 +119,19 @@ export function ProjectRow({
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color:var(--navy)]/55 via-transparent to-transparent" />
 
           {/* Floating badges */}
-          <div className="pointer-events-none absolute inset-x-5 top-5 flex flex-wrap items-start gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--navy)]/85 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-start gap-1.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--navy)]/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold)] backdrop-blur-sm">
               <Crown className="h-3 w-3" />
               Luxury Collection
             </span>
             {project.featured ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--gold)] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--navy)]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--gold)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--navy)]">
                 Featured
               </span>
             ) : null}
             {status ? (
               <span
-                className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm ${status.className}`}
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm ${status.className}`}
               >
                 {status.label}
               </span>
@@ -130,50 +139,50 @@ export function ProjectRow({
           </div>
 
           {photos > 0 ? (
-            <div className="pointer-events-none absolute bottom-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur-sm">
+            <div className="pointer-events-none absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
               <Camera className="h-3.5 w-3.5" />
               {photos} Photos
             </div>
           ) : null}
 
-          {project.location ? (
-            <div className="pointer-events-none absolute bottom-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[color:var(--navy)]">
+          {locTitle ? (
+            <div className="pointer-events-none absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-[color:var(--navy)]">
               <MapPin className="h-3.5 w-3.5 text-[color:var(--gold-2)]" />
-              {project.location.title}
+              {locTitle}
             </div>
           ) : null}
         </div>
 
         {/* DETAILS */}
-        <div className="flex flex-col gap-6 p-7 md:p-9 lg:p-10">
-          <header className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4 p-6 md:p-7">
+          <header className="flex flex-col gap-2">
             {project.builder ? (
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[color:var(--gold-2)]">
                 By {project.builder}
               </span>
             ) : null}
-            <h3 className="font-serif text-[28px] font-semibold leading-[1.15] text-[color:var(--navy)] md:text-[34px]">
-              {project.title}
+            <h3 className="font-serif text-[24px] font-semibold leading-[1.15] text-[color:var(--navy)] md:text-[28px]">
+              {title}
             </h3>
-            {project.location ? (
+            {locTitle ? (
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4 text-[color:var(--gold)]" />
-                {project.location.title}, Hyderabad
+                {locTitle}, Hyderabad
               </p>
             ) : null}
             {project.excerpt ? (
-              <p className="line-clamp-2 text-[15px] leading-relaxed text-muted-foreground">
-                {project.excerpt}
+              <p className="line-clamp-2 text-[14px] leading-relaxed text-muted-foreground">
+                {decodeEntities(project.excerpt)}
               </p>
             ) : null}
           </header>
 
           {highlights.length ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {highlights.map((h) => (
                 <span
                   key={h}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--gold)]/30 bg-[color:var(--ivory)] px-3 py-1.5 text-[11px] font-medium text-[color:var(--navy)]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--gold)]/30 bg-[color:var(--ivory)] px-2.5 py-1 text-[11px] font-medium text-[color:var(--navy)]"
                 >
                   <CheckCircle2 className="h-3 w-3 text-[color:var(--gold-2)]" />
                   {h}
@@ -182,8 +191,8 @@ export function ProjectRow({
             </div>
           ) : null}
 
-          {/* Price / config / possession */}
-          <div className="grid grid-cols-3 gap-4 rounded-2xl border border-[color:var(--gold)]/15 bg-gradient-to-br from-[color:var(--ivory)] to-white p-5">
+          {/* Price / config / possession — compact single row */}
+          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[color:var(--gold)]/15 bg-gradient-to-br from-[color:var(--ivory)] to-white px-4 py-3">
             <FactCell
               label="Starting From"
               value={priceLabel(project)}
@@ -201,50 +210,32 @@ export function ProjectRow({
             />
           </div>
 
-          {amenities.length ? (
-            <div>
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-[color:var(--gold-2)]">
-                Signature Amenities
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {amenities.map((a, i) => {
-                  const name = amenityName(a);
-                  const Icon = amenityIcon(name);
-                  return (
-                    <span
-                      key={`${name}-${i}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-white px-3 py-1.5 text-[12px] font-medium text-[color:var(--navy)] transition-colors hover:border-[color:var(--gold)]/50 hover:bg-[color:var(--ivory)]"
-                    >
-                      <Icon className="h-3.5 w-3.5 text-[color:var(--gold-2)]" />
-                      {name}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
-
-          {/* CTAs — hierarchical */}
-          <div className="mt-auto flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <Button asChild size="lg" className="flex-1 sm:flex-none">
+          {/* CTAs — single compact row */}
+          <div className="mt-auto flex items-center gap-2 pt-1">
+            <Button asChild size="sm" className="h-10 flex-1">
               <Link to="/projects/$slug" params={{ slug: project.slug }}>
                 <Eye className="h-4 w-4" />
                 View Project
               </Link>
             </Button>
-            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="h-4 w-4" />
-                Brochure</Button>
-            <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Calendar className="h-4 w-4" />
-                Site Visit</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 flex-1"
+              onClick={() => openEnquiry({ project: title })}
+            >
+              <Download className="h-4 w-4" />
+              Brochure
+            </Button>
             {waHref ? (
               <Button
                 asChild
-                size="lg"
-                className="bg-[#25D366] text-white hover:bg-[#20b558]"
+                size="icon"
+                aria-label="Chat on WhatsApp"
+                className="h-10 w-10 shrink-0 bg-[#25D366] text-white hover:bg-[#20b558]"
               >
                 <a href={waHref} target="_blank" rel="noopener noreferrer">
-                  <WhatsAppIcon className="h-4 w-4" />
-                  WhatsApp
+                  <WhatsAppIcon className="h-5 w-5" />
                 </a>
               </Button>
             ) : null}
@@ -275,8 +266,8 @@ function FactCell({
       <p
         className={
           accent
-            ? "mt-1.5 truncate font-serif text-[22px] font-semibold text-[color:var(--navy)] md:text-[26px]"
-            : "mt-1.5 truncate text-[15px] font-semibold text-[color:var(--navy)]"
+            ? "mt-1 truncate font-serif text-[18px] font-semibold text-[color:var(--navy)] md:text-[20px]"
+            : "mt-1 truncate text-[14px] font-semibold text-[color:var(--navy)]"
         }
       >
         {value}
@@ -293,25 +284,33 @@ function buildHighlights(p: Project): string[] {
   if (p.sizes) out.push(`${p.sizes} sq.ft +`);
   if (/gated|community|resid/i.test(p.excerpt ?? "")) out.push("Gated Community");
   if (out.length < 3) out.push("Premium Community");
-  return Array.from(new Set(out)).slice(0, 5);
+  return Array.from(new Set(out)).slice(0, 4);
 }
 
 /**
- * ProjectCard — the reusable card used on grid layouts (locations, projects
- * grid view). Same luxury language: dominant image, refined typography,
- * chip amenities (no circular initials), single primary action.
+ * ProjectCard — reusable grid card. Compact: image, tight pricing row,
+ * up-to-4 chips, single-row CTA (View / Brochure / WhatsApp icon).
  */
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({
+  project,
+  whatsapp,
+}: {
+  project: Project;
+  whatsapp?: string;
+}) {
   const { open: openEnquiry } = useEnquiry();
   const status = statusTone(project.status);
-  const amenities = project.amenities_top4?.slice(0, 3) ?? [];
+  const waHref = waLink(project, whatsapp);
+  const locTitle = locationTitle(project);
+  const title = projectTitle(project);
+  const highlights = buildHighlights(project).slice(0, 4);
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-[20px] border border-black/[0.04] bg-white shadow-[0_1px_2px_rgba(10,31,68,.04),0_16px_40px_-28px_rgba(10,31,68,.2)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(10,31,68,.04),0_28px_60px_-28px_rgba(10,31,68,.32)]">
       <div className="relative aspect-[4/3] overflow-hidden bg-[color:var(--mist)]/40">
         <img
           src={projectImage(project)}
-          alt={project.title}
+          alt={title}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.07]"
         />
@@ -331,73 +330,103 @@ export function ProjectCard({ project }: { project: Project }) {
           ) : null}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-4 bottom-4 flex items-end justify-between text-white">
-          <div>
-            {project.builder ? (
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold)]">
-                {project.builder}
-              </p>
-            ) : null}
-            <h3 className="mt-1 font-serif text-[22px] font-semibold leading-tight drop-shadow">
-              {project.title}
-            </h3>
+        {locTitle ? (
+          <div className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--navy)]">
+            <MapPin className="h-3 w-3 text-[color:var(--gold-2)]" />
+            {locTitle}
           </div>
+        ) : null}
+
+        <div className="pointer-events-none absolute inset-x-4 bottom-4 text-white">
+          {project.builder ? (
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold)]">
+              {project.builder}
+            </p>
+          ) : null}
+          <h3 className="mt-1 font-serif text-[20px] font-semibold leading-tight drop-shadow line-clamp-1">
+            {title}
+          </h3>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-6">
-        {project.location ? (
-          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 text-[color:var(--gold)]" />
-            {project.location.title}, Hyderabad
+      <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
+        {project.excerpt ? (
+          <p className="line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+            {decodeEntities(project.excerpt)}
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 rounded-2xl border border-[color:var(--gold)]/15 bg-[color:var(--ivory)]/60 p-4">
-          <div>
-            <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold-2)]">
-              Starting From
+        {/* Compact pricing row: Starting / Config / Possession */}
+        <div className="grid grid-cols-3 gap-2 rounded-xl border border-[color:var(--gold)]/15 bg-[color:var(--ivory)]/60 px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[color:var(--gold-2)]">
+              Starting
             </p>
-            <p className="mt-1 font-serif text-lg font-semibold text-[color:var(--navy)]">
+            <p className="mt-0.5 truncate font-serif text-[15px] font-semibold text-[color:var(--navy)]">
               {priceLabel(project)}
             </p>
           </div>
-          <div>
-            <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[color:var(--gold-2)]">
-              <Ruler className="h-3 w-3" />
+          <div className="min-w-0">
+            <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[color:var(--gold-2)]">
+              <Ruler className="h-2.5 w-2.5" />
               Config
             </p>
-            <p className="mt-1 truncate text-sm font-semibold text-[color:var(--navy)]">
+            <p className="mt-0.5 truncate text-[12px] font-semibold text-[color:var(--navy)]">
               {project.unit_types || "—"}
+            </p>
+          </div>
+          <div className="min-w-0">
+            <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[color:var(--gold-2)]">
+              <Calendar className="h-2.5 w-2.5" />
+              Possession
+            </p>
+            <p className="mt-0.5 truncate text-[12px] font-semibold text-[color:var(--navy)]">
+              {project.possession || "On Request"}
             </p>
           </div>
         </div>
 
-        {amenities.length ? (
+        {highlights.length ? (
           <div className="flex flex-wrap gap-1.5">
-            {amenities.map((a, i) => {
-              const name = amenityName(a);
-              const Icon = amenityIcon(name);
-              return (
-                <span
-                  key={`${name}-${i}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-[color:var(--navy)]"
-                >
-                  <Icon className="h-3 w-3 text-[color:var(--gold-2)]" />
-                  {name}
-                </span>
-              );
-            })}
+            {highlights.map((h) => (
+              <span
+                key={h}
+                className="inline-flex items-center gap-1 rounded-full border border-[color:var(--gold)]/25 bg-white px-2 py-0.5 text-[10px] font-medium text-[color:var(--navy)]"
+              >
+                <CheckCircle2 className="h-2.5 w-2.5 text-[color:var(--gold-2)]" />
+                {h}
+              </span>
+            ))}
           </div>
         ) : null}
 
         <div className="mt-auto flex items-center gap-2 pt-1">
-          <Button asChild className="flex-1">
+          <Button asChild size="sm" className="h-9 flex-1">
             <Link to="/projects/$slug" params={{ slug: project.slug }}>
               View Project
             </Link>
           </Button>
-          <Button variant="outline" size="icon" aria-label="Enquire" onClick={() => openEnquiry({ project: project.title })}><Eye className="h-4 w-4" /></Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 flex-1"
+            onClick={() => openEnquiry({ project: title })}
+          >
+            <Download className="h-4 w-4" />
+            Brochure
+          </Button>
+          {waHref ? (
+            <Button
+              asChild
+              size="icon"
+              aria-label="Chat on WhatsApp"
+              className="h-9 w-9 shrink-0 bg-[#25D366] text-white hover:bg-[#20b558]"
+            >
+              <a href={waHref} target="_blank" rel="noopener noreferrer">
+                <WhatsAppIcon className="h-4 w-4" />
+              </a>
+            </Button>
+          ) : null}
         </div>
       </div>
     </article>
