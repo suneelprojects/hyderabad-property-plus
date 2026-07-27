@@ -28,6 +28,7 @@ import {
   Mail,
   Star,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useEnquiry } from "@/components/enquiry-modal";
 
 import { Container } from "@/components/layout/container";
@@ -173,6 +174,69 @@ function toEntries(v: unknown): SpecEntry[] {
   return [];
 }
 
+// ---------------------------------------------------------------- lead gate
+
+/**
+ * All high-intent CTAs on the Project Details page must capture a lead
+ * before performing their action. Opens the shared enquiry modal and only
+ * runs the action after a successful submission.
+ */
+function useLeadGate() {
+  const { open } = useEnquiry();
+
+  const bookVisit = (project: Project) =>
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Book a Free Site Visit",
+      subtitle:
+        "Share a few details and our senior advisor will confirm your site visit within one business hour.",
+    });
+
+  const downloadBrochure = (project: Project) => {
+    const url = (project as unknown as { brochure_url?: string }).brochure_url;
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Download Brochure",
+      subtitle:
+        "Share your contact details — we'll open the brochure and email you a copy.",
+      onSuccess: () => {
+        if (!url) {
+          toast.error(
+            "Brochure isn't uploaded yet. Our advisor will email it to you shortly.",
+          );
+          return;
+        }
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      },
+    });
+  };
+
+  const callAdvisor = (project: Project, phone: string) =>
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Talk to a Senior Advisor",
+      subtitle:
+        "Share your details and we'll connect you with an advisor right away.",
+      onSuccess: () => {
+        const tel = `tel:${(phone || "").replace(/\s/g, "")}`;
+        if (tel !== "tel:") window.location.href = tel;
+      },
+    });
+
+  return { bookVisit, downloadBrochure, callAdvisor };
+}
+
+
 // ---------------------------------------------------------------- page
 
 function ProjectDetail() {
@@ -208,19 +272,21 @@ function ProjectDetail() {
         heroImage={heroImage}
         crumbs={crumbs}
         telUrl={telUrl}
+        phone={phone}
       />
       <QuickFacts project={project} />
-      <ProjectOverview project={project} telUrl={telUrl} />
-      <PriceInformation project={project} telUrl={telUrl} />
+      <ProjectOverview project={project} phone={phone} />
       <AvailableFlats project={project} />
       <AmenitiesSection project={project} />
       <SpecificationsSection project={project} />
       <NearbySection project={project} />
       <FaqSection project={project} />
       <EnquireCta project={project} phone={phone} />
+      <PriceInformation project={project} phone={phone} />
       <MobileStickyBar
         telUrl={telUrl}
         whatsappUrl={whatsappUrl}
+        phone={phone}
       />
     </>
   );
@@ -232,14 +298,16 @@ function ProjectHero({
   project,
   heroImage,
   crumbs,
-  telUrl,
+  telUrl: _telUrl,
+  phone,
 }: {
   project: Project;
   heroImage: string;
   crumbs: Crumb[];
   telUrl: string;
+  phone: string;
 }) {
-  const { open: openEnquiry } = useEnquiry();
+  const { bookVisit, downloadBrochure, callAdvisor } = useLeadGate();
   return (
     <header className="relative isolate flex min-h-[560px] items-end overflow-hidden pt-[120px] text-white md:min-h-[640px]">
       <img
@@ -293,28 +361,25 @@ function ProjectHero({
         ) : null}
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
-              Book Site Visit</Button>
-          {(project as unknown as { brochure_url?: string }).brochure_url ? (
-            <Button asChild variant="hero-outline" size="lg">
-              <a
-                href={(project as unknown as { brochure_url?: string }).brochure_url as string}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download Brochure
-              </a>
-            </Button>
-          ) : (
-            <Button variant="hero-outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
-                Download Brochure</Button>
-          )}
-          <Button asChild variant="hero-outline" size="lg">
-            <a href={telUrl}>
-              <Headphones className="mr-2 h-4 w-4" />
-              Call Advisor
-            </a>
+          <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
+            <CalendarCheck className="mr-2 h-4 w-4" />
+            Book Site Visit
+          </Button>
+          <Button
+            variant="hero-outline"
+            size="lg"
+            onClick={() => downloadBrochure(project)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Brochure
+          </Button>
+          <Button
+            variant="hero-outline"
+            size="lg"
+            onClick={() => callAdvisor(project, phone)}
+          >
+            <Headphones className="mr-2 h-4 w-4" />
+            Call Advisor
           </Button>
         </div>
       </Container>
@@ -422,11 +487,12 @@ function UnderlineRule() {
 
 function ProjectOverview({
   project,
-  telUrl,
+  phone,
 }: {
   project: Project;
-  telUrl: string;
+  phone: string;
 }) {
+  const { callAdvisor } = useLeadGate();
   const html = project.content_html || `<p>${project.excerpt || ""}</p>`;
   return (
     <Section alt className="hrc-section">
@@ -437,11 +503,9 @@ function ProjectOverview({
         dangerouslySetInnerHTML={{ __html: html }}
       />
       <div className="mt-8 flex justify-center">
-        <Button asChild variant="gold" size="lg">
-          <a href={telUrl}>
-            <Headphones className="mr-2 h-4 w-4" />
-            Talk to Advisor
-          </a>
+        <Button variant="gold" size="lg" onClick={() => callAdvisor(project, phone)}>
+          <Headphones className="mr-2 h-4 w-4" />
+          Talk to Advisor
         </Button>
       </div>
     </Section>
@@ -452,12 +516,12 @@ function ProjectOverview({
 
 function PriceInformation({
   project,
-  telUrl,
+  phone,
 }: {
   project: Project;
-  telUrl: string;
+  phone: string;
 }) {
-  const { open: openEnquiry } = useEnquiry();
+  const { bookVisit, downloadBrochure, callAdvisor } = useLeadGate();
   const priceLabel = project.price_from
     ? formatPriceInr(project.price_from)
     : "On Request";
@@ -536,15 +600,17 @@ function PriceInformation({
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
-            Book Site Visit</Button>
-        <Button variant="outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
-            Download Brochure</Button>
-        <Button asChild variant="ghost" size="lg">
-          <a href={telUrl}>
-            <Headphones className="mr-2 h-4 w-4" />
-            Talk to Advisor
-          </a>
+        <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
+          <CalendarCheck className="mr-2 h-4 w-4" />
+          Book Site Visit
+        </Button>
+        <Button variant="outline" size="lg" onClick={() => downloadBrochure(project)}>
+          <Download className="mr-2 h-4 w-4" />
+          Download Brochure
+        </Button>
+        <Button variant="ghost" size="lg" onClick={() => callAdvisor(project, phone)}>
+          <Headphones className="mr-2 h-4 w-4" />
+          Talk to Advisor
         </Button>
       </div>
     </Section>
@@ -1084,9 +1150,11 @@ function EnquireCta({
 function MobileStickyBar({
   telUrl,
   whatsappUrl,
+  phone: _phone,
 }: {
   telUrl: string;
   whatsappUrl: string;
+  phone: string;
 }) {
   const { open: openEnquiry } = useEnquiry();
   return (
