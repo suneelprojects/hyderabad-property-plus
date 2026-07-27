@@ -298,14 +298,16 @@ function ProjectHero({
   project,
   heroImage,
   crumbs,
-  telUrl,
+  telUrl: _telUrl,
+  phone,
 }: {
   project: Project;
   heroImage: string;
   crumbs: Crumb[];
   telUrl: string;
+  phone: string;
 }) {
-  const { open: openEnquiry } = useEnquiry();
+  const { bookVisit, downloadBrochure, callAdvisor } = useLeadGate();
   return (
     <header className="relative isolate flex min-h-[560px] items-end overflow-hidden pt-[120px] text-white md:min-h-[640px]">
       <img
@@ -359,28 +361,25 @@ function ProjectHero({
         ) : null}
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button variant="gold" size="lg" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
-              Book Site Visit</Button>
-          {(project as unknown as { brochure_url?: string }).brochure_url ? (
-            <Button asChild variant="hero-outline" size="lg">
-              <a
-                href={(project as unknown as { brochure_url?: string }).brochure_url as string}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download Brochure
-              </a>
-            </Button>
-          ) : (
-            <Button variant="hero-outline" size="lg" onClick={() => openEnquiry({ project: project.title })}><Download className="mr-2 h-4 w-4" />
-                Download Brochure</Button>
-          )}
-          <Button asChild variant="hero-outline" size="lg">
-            <a href={telUrl}>
-              <Headphones className="mr-2 h-4 w-4" />
-              Call Advisor
-            </a>
+          <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
+            <CalendarCheck className="mr-2 h-4 w-4" />
+            Book Site Visit
+          </Button>
+          <Button
+            variant="hero-outline"
+            size="lg"
+            onClick={() => downloadBrochure(project)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Brochure
+          </Button>
+          <Button
+            variant="hero-outline"
+            size="lg"
+            onClick={() => callAdvisor(project, phone)}
+          >
+            <Headphones className="mr-2 h-4 w-4" />
+            Call Advisor
           </Button>
         </div>
       </Container>
