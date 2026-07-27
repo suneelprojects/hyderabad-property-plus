@@ -22,7 +22,7 @@ function locationImage(l: Location): string {
  */
 export function FeaturedLocations() {
   const { data, isLoading } = useLocations();
-  const items = (data ?? []).slice(0, 6);
+  const items = data ?? [];
 
   return (
     <Section id="locations">
