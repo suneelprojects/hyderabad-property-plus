@@ -1148,9 +1148,9 @@ function EnquireCta({
 // ---------------------------------------------------------------- mobile bar
 
 function MobileStickyBar({
-  telUrl: _telUrl,
+  telUrl,
   whatsappUrl,
-  phone,
+  phone: _phone,
 }: {
   telUrl: string;
   whatsappUrl: string;
