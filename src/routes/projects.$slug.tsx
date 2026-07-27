@@ -487,11 +487,12 @@ function UnderlineRule() {
 
 function ProjectOverview({
   project,
-  telUrl,
+  phone,
 }: {
   project: Project;
-  telUrl: string;
+  phone: string;
 }) {
+  const { callAdvisor } = useLeadGate();
   const html = project.content_html || `<p>${project.excerpt || ""}</p>`;
   return (
     <Section alt className="hrc-section">
@@ -502,11 +503,9 @@ function ProjectOverview({
         dangerouslySetInnerHTML={{ __html: html }}
       />
       <div className="mt-8 flex justify-center">
-        <Button asChild variant="gold" size="lg">
-          <a href={telUrl}>
-            <Headphones className="mr-2 h-4 w-4" />
-            Talk to Advisor
-          </a>
+        <Button variant="gold" size="lg" onClick={() => callAdvisor(project, phone)}>
+          <Headphones className="mr-2 h-4 w-4" />
+          Talk to Advisor
         </Button>
       </div>
     </Section>
