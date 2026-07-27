@@ -174,6 +174,69 @@ function toEntries(v: unknown): SpecEntry[] {
   return [];
 }
 
+// ---------------------------------------------------------------- lead gate
+
+/**
+ * All high-intent CTAs on the Project Details page must capture a lead
+ * before performing their action. Opens the shared enquiry modal and only
+ * runs the action after a successful submission.
+ */
+function useLeadGate() {
+  const { open } = useEnquiry();
+
+  const bookVisit = (project: Project) =>
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Book a Free Site Visit",
+      subtitle:
+        "Share a few details and our senior advisor will confirm your site visit within one business hour.",
+    });
+
+  const downloadBrochure = (project: Project) => {
+    const url = (project as unknown as { brochure_url?: string }).brochure_url;
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Download Brochure",
+      subtitle:
+        "Share your contact details — we'll open the brochure and email you a copy.",
+      onSuccess: () => {
+        if (!url) {
+          toast.error(
+            "Brochure isn't uploaded yet. Our advisor will email it to you shortly.",
+          );
+          return;
+        }
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      },
+    });
+  };
+
+  const callAdvisor = (project: Project, phone: string) =>
+    open({
+      project: project.title,
+      projectId: project.id,
+      title: "Talk to a Senior Advisor",
+      subtitle:
+        "Share your details and we'll connect you with an advisor right away.",
+      onSuccess: () => {
+        const tel = `tel:${(phone || "").replace(/\s/g, "")}`;
+        if (tel !== "tel:") window.location.href = tel;
+      },
+    });
+
+  return { bookVisit, downloadBrochure, callAdvisor };
+}
+
+
 // ---------------------------------------------------------------- page
 
 function ProjectDetail() {
