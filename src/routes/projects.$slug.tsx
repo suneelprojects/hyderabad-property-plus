@@ -1148,11 +1148,13 @@ function EnquireCta({
 // ---------------------------------------------------------------- mobile bar
 
 function MobileStickyBar({
-  telUrl,
+  telUrl: _telUrl,
   whatsappUrl,
+  phone,
 }: {
   telUrl: string;
   whatsappUrl: string;
+  phone: string;
 }) {
   const { open: openEnquiry } = useEnquiry();
   return (
