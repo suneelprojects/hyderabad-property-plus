@@ -624,181 +624,29 @@ function AvailableFlats({ project }: { project: Project }) {
     flatsQueryOptions({ project: project.id, per_page: 48 }),
   );
 
-  const [tower, setTower] = useState("");
-  const [floor, setFloor] = useState("");
-  const [bhk, setBhk] = useState("");
-  const [area, setArea] = useState("");
-  const [price, setPrice] = useState("");
-  const [status, setStatus] = useState("");
-
-  const towers = useMemo(() => {
-    const set = new Set<string>();
-    for (const f of flats) {
-      const t = (f as unknown as { tower?: string }).tower;
-      if (t) set.add(String(t));
-    }
-    return [...set].sort();
-  }, [flats]);
-
-  const bhkOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const f of flats) if (f.bhk) set.add(String(f.bhk));
-    return [...set].sort();
-  }, [flats]);
-
-  const filtered = flats.filter((f) => {
-    const rec = f as unknown as {
-      tower?: string;
-      floor?: number | string;
-      status?: string;
-    };
-    if (tower && rec.tower !== tower) return false;
-    if (bhk && f.bhk !== bhk) return false;
-    if (status && (rec.status || "").toLowerCase() !== status.toLowerCase())
-      return false;
-    if (floor) {
-      const min = Number(floor);
-      const fl = Number(rec.floor ?? 0);
-      if (!Number.isFinite(fl) || fl < min) return false;
-    }
-    if (area) {
-      const min = Number(area);
-      const size = Number(String(f.carpet_area || f.built_up_area || f.size || "").replace(/[^\d.]/g, ""));
-      if (!Number.isFinite(size) || size < min) return false;
-    }
-    if (price) {
-      const max = Number(price);
-      const p = Number(String(f.price ?? "").replace(/[^\d.]/g, ""));
-      if (!Number.isFinite(p) || p > max) return false;
-    }
-    return true;
-  });
-
-  const reset = () => {
-    setTower(""); setFloor(""); setBhk(""); setArea(""); setPrice(""); setStatus("");
-  };
-
   return (
-    <Section alt className="hrc-section">
+    <Section
+      alt
+      className="!py-10 md:!py-14"
+    >
       <SectionHeading eyebrow="Live Inventory" title="Available Flats" />
       <UnderlineRule />
-      <p className="mx-auto mt-4 max-w-2xl text-center text-[15px] text-muted-foreground">
-        Real-time inventory with pricing. Filter to your ideal home — then talk
-        to an advisor.
-      </p>
 
-      <div className="mt-10 rounded-2xl border border-[color:var(--mist)] bg-white p-5 shadow-[0_10px_40px_-24px_rgba(10,31,68,.2)] md:p-6">
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-7">
-          <FilterField label="Tower" icon={<Landmark className="h-4 w-4" />}>
-            <select
-              className="hrc-select"
-              value={tower}
-              onChange={(e) => setTower(e.target.value)}
-            >
-              <option value="">All Towers</option>
-              {towers.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField label="Floor" icon={<Layers className="h-4 w-4" />}>
-            <select
-              className="hrc-select"
-              value={floor}
-              onChange={(e) => setFloor(e.target.value)}
-            >
-              <option value="">Any Floor</option>
-              <option value="1">1+ (Low rise)</option>
-              <option value="5">5+</option>
-              <option value="10">10+</option>
-              <option value="15">15+ (High rise)</option>
-              <option value="20">20+ (Sky homes)</option>
-            </select>
-          </FilterField>
-          <FilterField label="BHK" icon={<HomeIcon className="h-4 w-4" />}>
-            <select
-              className="hrc-select"
-              value={bhk}
-              onChange={(e) => setBhk(e.target.value)}
-            >
-              <option value="">All Types</option>
-              {bhkOptions.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField
-            label="Area (min sqft)"
-            icon={<Ruler className="h-4 w-4" />}
-          >
-            <select
-              className="hrc-select"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-            >
-              <option value="">Any Size</option>
-              <option value="1500">1500+</option>
-              <option value="2000">2000+</option>
-              <option value="2500">2500+</option>
-              <option value="3000">3000+</option>
-              <option value="3500">3500+</option>
-            </select>
-          </FilterField>
-          <FilterField label="Max Price" icon={<Wallet className="h-4 w-4" />}>
-            <select
-              className="hrc-select"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            >
-              <option value="">Any Budget</option>
-              <option value="20000000">Up to ₹ 2 Cr</option>
-              <option value="30000000">Up to ₹ 3 Cr</option>
-              <option value="40000000">Up to ₹ 4 Cr</option>
-              <option value="50000000">Up to ₹ 5 Cr</option>
-              <option value="100000000">Up to ₹ 10 Cr</option>
-            </select>
-          </FilterField>
-          <FilterField label="Status" icon={<TagIcon className="h-4 w-4" />}>
-            <select
-              className="hrc-select"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="">All</option>
-              <option value="Available">Available</option>
-              <option value="Booked">Booked</option>
-              <option value="Sold">Sold</option>
-            </select>
-          </FilterField>
-          <div className="flex items-end">
-            <button
-              onClick={reset}
-              type="button"
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[color:var(--mist)] px-4 text-sm font-medium text-[color:var(--navy)] transition hover:border-[color:var(--gold)] hover:text-[color:var(--gold)]"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8">
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[color:var(--mist)] bg-white/60 px-6 py-14 text-center text-sm text-muted-foreground">
-            {flats.length === 0
-              ? "No flats added for this project yet. Check back soon."
-              : "No flats match your filters. Try widening your search."}
+      <div className="mt-6">
+        {flats.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-[color:var(--mist)] bg-white/60 px-6 py-8 text-center text-sm text-muted-foreground">
+            No flats added for this project yet. Check back soon.
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((f) => <FlatCard key={f.id} flat={f} />)}
+            {flats.map((f) => <FlatCard key={f.id} flat={f} />)}
           </div>
         )}
       </div>
     </Section>
   );
 }
+
 
 function FilterField({
   label,
