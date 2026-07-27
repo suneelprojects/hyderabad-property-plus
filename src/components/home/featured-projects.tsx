@@ -4,19 +4,19 @@ import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
-import { LuxuryShowcase } from "@/components/projects/luxury-showcase";
+import { ProjectCard } from "@/components/projects/project-cards";
 import { useMeta, useProjects } from "@/hooks/queries";
 
 /**
- * FeaturedProjects — luxury brochure-style showcase. Full-width carousel that
- * spotlights one development at a time with a 55/45 image-to-detail split,
- * autoplay, arrows, dots, and swipe. Warm ivory backdrop with generous
- * whitespace.
+ * FeaturedProjects — homepage showcase. Uses the shared compact ProjectCard
+ * so any card design change propagates automatically across Home, Projects,
+ * Locations, and Search.
  */
 export function FeaturedProjects() {
   const { data, isLoading } = useProjects();
   const { data: meta } = useMeta();
   const items = (data ?? []).slice(0, 6);
+  const whatsapp = meta?.whatsapp || meta?.phone;
 
   return (
     <Section id="projects" className="bg-[color:var(--ivory)]">
@@ -28,12 +28,20 @@ export function FeaturedProjects() {
 
       <div className="mt-14">
         {isLoading && !items.length ? (
-          <div className="h-[560px] animate-pulse rounded-[28px] bg-white/70" />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-[420px] animate-pulse rounded-[20px] bg-white/70"
+              />
+            ))}
+          </div>
         ) : items.length ? (
-          <LuxuryShowcase
-            projects={items}
-            whatsapp={meta?.whatsapp || meta?.phone}
-          />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((p) => (
+              <ProjectCard key={p.id} project={p} whatsapp={whatsapp} />
+            ))}
+          </div>
         ) : null}
       </div>
 
