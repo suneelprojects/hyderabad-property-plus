@@ -58,7 +58,13 @@ function validate(values: EnquiryFormValues): Errors {
 // ---------------------------------------------------------------------------
 // Global provider + hook
 
-type OpenOptions = { project?: string; projectId?: string | number };
+type OpenOptions = {
+  project?: string;
+  projectId?: string | number;
+  title?: string;
+  subtitle?: string;
+  onSuccess?: (values: EnquiryFormValues) => void;
+};
 
 type EnquiryContextValue = {
   open: (options?: OpenOptions) => void;
@@ -80,10 +86,18 @@ export function EnquiryProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [project, setProject] = React.useState<string>("");
   const [projectId, setProjectId] = React.useState<string>("");
+  const [title, setTitle] = React.useState<string | undefined>(undefined);
+  const [subtitle, setSubtitle] = React.useState<string | undefined>(undefined);
+  const onSuccessRef = React.useRef<
+    ((values: EnquiryFormValues) => void) | undefined
+  >(undefined);
 
   const open = React.useCallback((options?: OpenOptions) => {
     setProject(options?.project ?? "");
     setProjectId(options?.projectId != null ? String(options.projectId) : "");
+    setTitle(options?.title);
+    setSubtitle(options?.subtitle);
+    onSuccessRef.current = options?.onSuccess;
     setIsOpen(true);
   }, []);
 
@@ -99,9 +113,19 @@ export function EnquiryProvider({ children }: { children: React.ReactNode }) {
       {children}
       <EnquiryModal
         open={isOpen}
-        onOpenChange={setIsOpen}
+        onOpenChange={(next) => {
+          if (!next) onSuccessRef.current = undefined;
+          setIsOpen(next);
+        }}
         defaultProject={project}
         defaultProjectId={projectId}
+        title={title}
+        subtitle={subtitle}
+        onSubmit={(values) => {
+          const cb = onSuccessRef.current;
+          onSuccessRef.current = undefined;
+          cb?.(values);
+        }}
       />
     </EnquiryContext.Provider>
   );
