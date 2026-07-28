@@ -48,7 +48,156 @@ add_action( 'rest_api_init', function () {
 			),
 		)
 	);
+
+	// Diagnostic: inspect linkage (post_parent, all meta, taxonomies) for a flat.
+	register_rest_route(
+		HRC_FLAT_ADMIN_NAMESPACE,
+		'/flats/inspect/(?P<id>\d+)',
+		array(
+			'methods'             => 'GET',
+			'permission_callback' => 'hrc_flat_admin_permission_check',
+			'callback'            => function ( WP_REST_Request $req ) {
+				$id = (int) $req['id'];
+				$p  = get_post( $id );
+				if ( ! $p ) return new WP_Error( 'not_found', 'not found', array( 'status' => 404 ) );
+				$taxes = get_object_taxonomies( $p->post_type );
+				$terms = array();
+				foreach ( $taxes as $t ) {
+					$tt = wp_get_object_terms( $id, $t, array( 'fields' => 'all' ) );
+					if ( ! is_wp_error( $tt ) && $tt ) {
+						$terms[ $t ] = array_map( function ( $x ) {
+							return array( 'term_id' => $x->term_id, 'slug' => $x->slug, 'name' => $x->name );
+						}, $tt );
+					}
+				}
+				return rest_ensure_response( array(
+					'id'          => $id,
+					'post_type'   => $p->post_type,
+					'post_parent' => $p->post_parent,
+					'title'       => $p->post_title,
+					'meta'        => get_post_meta( $id ),
+					'taxonomies'  => $taxes,
+					'terms'       => $terms,
+				) );
+			},
+		)
+	);
+
+	// Repair: assign a set of flat post IDs to a project using the same
+	// mechanism the HRC plugin uses. Auto-detects: post_parent, taxonomy
+	// term, or a meta key discovered from a reference flat.
+	register_rest_route(
+		HRC_FLAT_ADMIN_NAMESPACE,
+		'/flats/repair-project',
+		array(
+			'methods'             => 'POST',
+			'permission_callback' => 'hrc_flat_admin_permission_check',
+			'callback'            => 'hrc_flat_admin_repair_project',
+			'args'                => array(
+				'project_id'    => array( 'type' => 'integer', 'required' => true ),
+				'flat_ids'      => array( 'type' => 'array',   'required' => true ),
+				'reference_id'  => array( 'type' => 'integer', 'required' => false, 'default' => HRC_FLAT_REFERENCE_ID ),
+				'dry_run'       => array( 'type' => 'boolean', 'required' => false, 'default' => true ),
+			),
+		)
+	);
 } );
+
+function hrc_flat_admin_detect_project_link( $reference_id ) {
+	$ref = get_post( (int) $reference_id );
+	if ( ! $ref || $ref->post_type !== HRC_FLAT_POST_TYPE ) {
+		return new WP_Error( 'ref_missing', 'reference flat not found', array( 'status' => 500 ) );
+	}
+	// (a) post_parent → project?
+	if ( $ref->post_parent ) {
+		$parent = get_post( $ref->post_parent );
+		if ( $parent && $parent->post_type === 'hrc_project' ) {
+			return array( 'method' => 'post_parent', 'project_id' => (int) $parent->ID );
+		}
+	}
+	// (b) taxonomy term whose slug matches an hrc_project slug?
+	$taxes = get_object_taxonomies( HRC_FLAT_POST_TYPE );
+	foreach ( $taxes as $t ) {
+		$terms = wp_get_object_terms( $ref->ID, $t );
+		if ( is_wp_error( $terms ) || ! $terms ) continue;
+		foreach ( $terms as $term ) {
+			$maybe = get_page_by_path( $term->slug, OBJECT, 'hrc_project' );
+			if ( $maybe ) {
+				return array( 'method' => 'taxonomy', 'taxonomy' => $t, 'term_id' => $term->term_id, 'project_id' => (int) $maybe->ID );
+			}
+		}
+		// even without slug match, record the first taxonomy that binds flats to something
+		if ( $terms ) {
+			return array( 'method' => 'taxonomy', 'taxonomy' => $t, 'term_id' => (int) $terms[0]->term_id, 'note' => 'term slug did not resolve to hrc_project; using term as-is' );
+		}
+	}
+	// (c) meta key whose value is a project post id
+	$meta = get_post_meta( $ref->ID );
+	foreach ( $meta as $k => $vals ) {
+		$v = is_array( $vals ) ? reset( $vals ) : $vals;
+		if ( ! is_numeric( $v ) ) continue;
+		$maybe = get_post( (int) $v );
+		if ( $maybe && $maybe->post_type === 'hrc_project' ) {
+			return array( 'method' => 'meta', 'meta_key' => $k, 'project_id' => (int) $maybe->ID );
+		}
+	}
+	return new WP_Error( 'link_unknown', 'could not detect flat→project link mechanism', array( 'status' => 500 ) );
+}
+
+function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
+	$project_id = (int) $req->get_param( 'project_id' );
+	$flat_ids   = (array) $req->get_param( 'flat_ids' );
+	$ref_id     = (int) $req->get_param( 'reference_id' );
+	$dry_run    = (bool) $req->get_param( 'dry_run' );
+
+	$project = get_post( $project_id );
+	if ( ! $project || $project->post_type !== 'hrc_project' ) {
+		return new WP_Error( 'bad_project', 'project_id is not an hrc_project', array( 'status' => 400 ) );
+	}
+	$detect = hrc_flat_admin_detect_project_link( $ref_id );
+	if ( is_wp_error( $detect ) ) return $detect;
+
+	// For taxonomy method, resolve the correct term for the target project.
+	$target_term_id = null;
+	if ( $detect['method'] === 'taxonomy' ) {
+		$term = get_term_by( 'slug', $project->post_name, $detect['taxonomy'] );
+		if ( ! $term ) {
+			return new WP_Error( 'no_term', "no term in taxonomy {$detect['taxonomy']} matching project slug '{$project->post_name}'", array( 'status' => 500, 'detected' => $detect ) );
+		}
+		$target_term_id = (int) $term->term_id;
+	}
+
+	$actions = array();
+	foreach ( $flat_ids as $fid ) {
+		$fid = (int) $fid;
+		$p = get_post( $fid );
+		if ( ! $p || $p->post_type !== HRC_FLAT_POST_TYPE ) {
+			$actions[] = array( 'flat_id' => $fid, 'action' => 'skip', 'reason' => 'not an hrc_flat' );
+			continue;
+		}
+		$act = array( 'flat_id' => $fid, 'method' => $detect['method'] );
+		if ( $dry_run ) {
+			$act['action'] = 'would_link';
+		} else {
+			if ( $detect['method'] === 'post_parent' ) {
+				wp_update_post( array( 'ID' => $fid, 'post_parent' => $project_id ) );
+			} elseif ( $detect['method'] === 'taxonomy' ) {
+				wp_set_object_terms( $fid, array( $target_term_id ), $detect['taxonomy'], false );
+			} elseif ( $detect['method'] === 'meta' ) {
+				update_post_meta( $fid, $detect['meta_key'], $project_id );
+			}
+			$act['action'] = 'linked';
+		}
+		$actions[] = $act;
+	}
+
+	return rest_ensure_response( array(
+		'dry_run'   => $dry_run,
+		'detected'  => $detect,
+		'project_id' => $project_id,
+		'actions'   => $actions,
+	) );
+}
 
 /* -------------------------------------------------------------------------
  * AuthN / AuthZ
