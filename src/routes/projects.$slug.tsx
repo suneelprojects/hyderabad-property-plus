@@ -47,6 +47,7 @@ import {
 import { HrcApiError } from "@/services/api";
 import { formatArea, formatPriceInr } from "@/lib/format";
 import { imageSrc } from "@/lib/image";
+import { decodeEntities } from "@/lib/html";
 import { cn } from "@/lib/utils";
 import type { Flat, Project } from "@/types/hrc";
 
