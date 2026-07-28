@@ -682,7 +682,14 @@ const RIBBON_LABELS: Record<string, string> = {
 };
 
 function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
-  const rec = flat as unknown as { tower?: string; floor?: string | number; status?: string };
+  const rec = flat as unknown as {
+    title?: string;
+    flat_number?: string | number;
+    tower?: string;
+    floor?: string | number;
+    size_sqft?: string | number;
+    status?: string;
+  };
   const { open: openEnquiry } = useEnquiry();
 
   const imageUrl = imageSrc(
@@ -694,19 +701,53 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
   const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
   const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
 
+  const title = rec.title ? decodeEntities(String(rec.title)) : "";
+
+  const floorNum = Number(rec.floor);
+  const hasValidFloor =
+    rec.floor !== null &&
+    rec.floor !== undefined &&
+    rec.floor !== "" &&
+    Number.isFinite(floorNum) &&
+    floorNum > 0;
+
+  const flatNumber =
+    rec.flat_number !== null &&
+    rec.flat_number !== undefined &&
+    String(rec.flat_number).trim() !== ""
+      ? String(rec.flat_number)
+      : null;
+
+  const priceNum = Number(flat.price);
+  const hasPrice = Number.isFinite(priceNum) && priceNum > 0;
+  const priceDisplay = hasPrice ? formatPriceInr(priceNum) : "Price on Request";
+
+  const sizeDisplay =
+    rec.size_sqft !== undefined && rec.size_sqft !== null && rec.size_sqft !== ""
+      ? (() => {
+          const n = Number(rec.size_sqft);
+          return Number.isFinite(n)
+            ? `${n.toLocaleString("en-IN")} sq.ft`
+            : formatArea(String(rec.size_sqft));
+        })()
+      : flat.carpet_area || flat.built_up_area
+        ? formatArea(flat.carpet_area || flat.built_up_area)
+        : null;
+
   const contextBits = [
     flat.bhk,
     rec.tower ? `Tower ${rec.tower}` : null,
-    rec.floor != null && rec.floor !== "" ? `Floor ${rec.floor}` : null,
+    hasValidFloor ? `Floor ${floorNum}` : null,
     flat.facing ? `${flat.facing} facing` : null,
-    flat.price ? formatPriceInr(flat.price) : null,
+    flatNumber ? `Flat ${flatNumber}` : null,
+    hasPrice ? formatPriceInr(priceNum) : null,
   ].filter(Boolean) as string[];
 
   const handleEnquire = () => {
     openEnquiry({
       project: project.title,
       projectId: project.id,
-      subtitle: `${project.title} — Flat #${flat.id}${contextBits.length ? " · " + contextBits.join(" · ") : ""}`,
+      subtitle: `${project.title}${title ? " — " + title : ` — Flat #${flat.id}`}${contextBits.length ? " · " + contextBits.join(" · ") : ""}`,
     });
   };
 
@@ -715,7 +756,7 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[color:var(--ivory)]">
         <img
           src={imageUrl}
-          alt={`${flat.bhk || "Flat"} — ${project.title}`}
+          alt={title || `${flat.bhk || "Flat"} — ${project.title}`}
           loading="lazy"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
@@ -729,43 +770,31 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
           </div>
         ) : null}
       </div>
-      <div className="p-5">
-        <div className="flex items-center justify-between">
-          <div className="font-serif text-lg font-semibold text-[color:var(--navy)]">
-            {flat.bhk || "Unit"}
-          </div>
-          {rec.status ? (
-            <span className="rounded-full bg-[color:var(--ivory)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--gold)]">
-              {rec.status}
-            </span>
-          ) : null}
-        </div>
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-          {rec.tower ? <Fact label="Tower" value={rec.tower} /> : null}
-          {rec.floor != null && rec.floor !== "" ? (
-            <Fact label="Floor" value={String(rec.floor)} />
-          ) : null}
-          {flat.size || flat.carpet_area || flat.built_up_area ? (
-            <Fact
-              label="Area"
-              value={formatArea(flat.size || flat.carpet_area || flat.built_up_area)}
-            />
-          ) : null}
+      <div className="p-4">
+        <h4 className="font-serif text-base font-semibold leading-snug text-[color:var(--navy)] line-clamp-2">
+          {title || flat.bhk || "Unit"}
+        </h4>
+        <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+          {flat.bhk ? <Fact label="BHK" value={flat.bhk} /> : null}
+          {sizeDisplay ? <Fact label="Size" value={sizeDisplay} /> : null}
+          {rec.tower ? <Fact label="Tower" value={String(rec.tower)} /> : null}
+          {hasValidFloor ? <Fact label="Floor" value={String(floorNum)} /> : null}
           {flat.facing ? <Fact label="Facing" value={flat.facing} /> : null}
+          {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
-        <div className="mt-4 flex items-center justify-between border-t border-[color:var(--mist)] pt-4">
+        <div className="mt-3 flex items-center justify-between border-t border-[color:var(--mist)] pt-3">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Price
             </div>
-            <div className="font-serif text-lg font-semibold text-[color:var(--gold)]">
-              {flat.price ? formatPriceInr(flat.price) : "On Request"}
+            <div className="font-serif text-base font-semibold text-[color:var(--gold)]">
+              {priceDisplay}
             </div>
           </div>
           <button
             type="button"
             onClick={handleEnquire}
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]"
+            className="inline-flex items-center gap-1 rounded-md bg-[color:var(--navy)] px-3 py-2 text-xs font-semibold text-white hover:bg-[color:var(--navy)]/90"
           >
             Enquire <Send className="h-3.5 w-3.5" />
           </button>
