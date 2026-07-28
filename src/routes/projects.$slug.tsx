@@ -639,8 +639,9 @@ function AvailableFlats({ project }: { project: Project }) {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {flats.map((f) => <FlatCard key={f.id} flat={f} />)}
+            {flats.map((f) => <FlatCard key={f.id} flat={f} project={project} />)}
           </div>
+
         )}
       </div>
     </Section>
