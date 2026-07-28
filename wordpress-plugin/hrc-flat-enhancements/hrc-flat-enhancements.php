@@ -21,6 +21,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 const HRC_FLAT_POST_TYPE = 'hrc_flat';
 const HRC_FLAT_RIBBON_META = '_hrc_flat_ribbon';
 
+// Secure admin REST endpoint (bulk import).
+require_once __DIR__ . '/includes/class-hrc-flat-admin-rest.php';
+
+register_activation_hook( __FILE__, function () {
+	$role = get_role( 'administrator' );
+	if ( $role && ! $role->has_cap( HRC_FLAT_ADMIN_CAP ) ) {
+		$role->add_cap( HRC_FLAT_ADMIN_CAP );
+	}
+} );
+
 /**
  * Allowed ribbon values. Keep in sync with the frontend `FlatRibbon` type.
  */
