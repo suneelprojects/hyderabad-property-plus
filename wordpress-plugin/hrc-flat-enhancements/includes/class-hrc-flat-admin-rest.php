@@ -48,7 +48,156 @@ add_action( 'rest_api_init', function () {
 			),
 		)
 	);
+
+	// Diagnostic: inspect linkage (post_parent, all meta, taxonomies) for a flat.
+	register_rest_route(
+		HRC_FLAT_ADMIN_NAMESPACE,
+		'/flats/inspect/(?P<id>\d+)',
+		array(
+			'methods'             => 'GET',
+			'permission_callback' => 'hrc_flat_admin_permission_check',
+			'callback'            => function ( WP_REST_Request $req ) {
+				$id = (int) $req['id'];
+				$p  = get_post( $id );
+				if ( ! $p ) return new WP_Error( 'not_found', 'not found', array( 'status' => 404 ) );
+				$taxes = get_object_taxonomies( $p->post_type );
+				$terms = array();
+				foreach ( $taxes as $t ) {
+					$tt = wp_get_object_terms( $id, $t, array( 'fields' => 'all' ) );
+					if ( ! is_wp_error( $tt ) && $tt ) {
+						$terms[ $t ] = array_map( function ( $x ) {
+							return array( 'term_id' => $x->term_id, 'slug' => $x->slug, 'name' => $x->name );
+						}, $tt );
+					}
+				}
+				return rest_ensure_response( array(
+					'id'          => $id,
+					'post_type'   => $p->post_type,
+					'post_parent' => $p->post_parent,
+					'title'       => $p->post_title,
+					'meta'        => get_post_meta( $id ),
+					'taxonomies'  => $taxes,
+					'terms'       => $terms,
+				) );
+			},
+		)
+	);
+
+	// Repair: assign a set of flat post IDs to a project using the same
+	// mechanism the HRC plugin uses. Auto-detects: post_parent, taxonomy
+	// term, or a meta key discovered from a reference flat.
+	register_rest_route(
+		HRC_FLAT_ADMIN_NAMESPACE,
+		'/flats/repair-project',
+		array(
+			'methods'             => 'POST',
+			'permission_callback' => 'hrc_flat_admin_permission_check',
+			'callback'            => 'hrc_flat_admin_repair_project',
+			'args'                => array(
+				'project_id'    => array( 'type' => 'integer', 'required' => true ),
+				'flat_ids'      => array( 'type' => 'array',   'required' => true ),
+				'reference_id'  => array( 'type' => 'integer', 'required' => false, 'default' => HRC_FLAT_REFERENCE_ID ),
+				'dry_run'       => array( 'type' => 'boolean', 'required' => false, 'default' => true ),
+			),
+		)
+	);
 } );
+
+function hrc_flat_admin_detect_project_link( $reference_id ) {
+	$ref = get_post( (int) $reference_id );
+	if ( ! $ref || $ref->post_type !== HRC_FLAT_POST_TYPE ) {
+		return new WP_Error( 'ref_missing', 'reference flat not found', array( 'status' => 500 ) );
+	}
+	// (a) post_parent → project?
+	if ( $ref->post_parent ) {
+		$parent = get_post( $ref->post_parent );
+		if ( $parent && $parent->post_type === 'hrc_project' ) {
+			return array( 'method' => 'post_parent', 'project_id' => (int) $parent->ID );
+		}
+	}
+	// (b) taxonomy term whose slug matches an hrc_project slug?
+	$taxes = get_object_taxonomies( HRC_FLAT_POST_TYPE );
+	foreach ( $taxes as $t ) {
+		$terms = wp_get_object_terms( $ref->ID, $t );
+		if ( is_wp_error( $terms ) || ! $terms ) continue;
+		foreach ( $terms as $term ) {
+			$maybe = get_page_by_path( $term->slug, OBJECT, 'hrc_project' );
+			if ( $maybe ) {
+				return array( 'method' => 'taxonomy', 'taxonomy' => $t, 'term_id' => $term->term_id, 'project_id' => (int) $maybe->ID );
+			}
+		}
+		// even without slug match, record the first taxonomy that binds flats to something
+		if ( $terms ) {
+			return array( 'method' => 'taxonomy', 'taxonomy' => $t, 'term_id' => (int) $terms[0]->term_id, 'note' => 'term slug did not resolve to hrc_project; using term as-is' );
+		}
+	}
+	// (c) meta key whose value is a project post id
+	$meta = get_post_meta( $ref->ID );
+	foreach ( $meta as $k => $vals ) {
+		$v = is_array( $vals ) ? reset( $vals ) : $vals;
+		if ( ! is_numeric( $v ) ) continue;
+		$maybe = get_post( (int) $v );
+		if ( $maybe && $maybe->post_type === 'hrc_project' ) {
+			return array( 'method' => 'meta', 'meta_key' => $k, 'project_id' => (int) $maybe->ID );
+		}
+	}
+	return new WP_Error( 'link_unknown', 'could not detect flat→project link mechanism', array( 'status' => 500 ) );
+}
+
+function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
+	$project_id = (int) $req->get_param( 'project_id' );
+	$flat_ids   = (array) $req->get_param( 'flat_ids' );
+	$ref_id     = (int) $req->get_param( 'reference_id' );
+	$dry_run    = (bool) $req->get_param( 'dry_run' );
+
+	$project = get_post( $project_id );
+	if ( ! $project || $project->post_type !== 'hrc_project' ) {
+		return new WP_Error( 'bad_project', 'project_id is not an hrc_project', array( 'status' => 400 ) );
+	}
+	$detect = hrc_flat_admin_detect_project_link( $ref_id );
+	if ( is_wp_error( $detect ) ) return $detect;
+
+	// For taxonomy method, resolve the correct term for the target project.
+	$target_term_id = null;
+	if ( $detect['method'] === 'taxonomy' ) {
+		$term = get_term_by( 'slug', $project->post_name, $detect['taxonomy'] );
+		if ( ! $term ) {
+			return new WP_Error( 'no_term', "no term in taxonomy {$detect['taxonomy']} matching project slug '{$project->post_name}'", array( 'status' => 500, 'detected' => $detect ) );
+		}
+		$target_term_id = (int) $term->term_id;
+	}
+
+	$actions = array();
+	foreach ( $flat_ids as $fid ) {
+		$fid = (int) $fid;
+		$p = get_post( $fid );
+		if ( ! $p || $p->post_type !== HRC_FLAT_POST_TYPE ) {
+			$actions[] = array( 'flat_id' => $fid, 'action' => 'skip', 'reason' => 'not an hrc_flat' );
+			continue;
+		}
+		$act = array( 'flat_id' => $fid, 'method' => $detect['method'] );
+		if ( $dry_run ) {
+			$act['action'] = 'would_link';
+		} else {
+			if ( $detect['method'] === 'post_parent' ) {
+				wp_update_post( array( 'ID' => $fid, 'post_parent' => $project_id ) );
+			} elseif ( $detect['method'] === 'taxonomy' ) {
+				wp_set_object_terms( $fid, array( $target_term_id ), $detect['taxonomy'], false );
+			} elseif ( $detect['method'] === 'meta' ) {
+				update_post_meta( $fid, $detect['meta_key'], $project_id );
+			}
+			$act['action'] = 'linked';
+		}
+		$actions[] = $act;
+	}
+
+	return rest_ensure_response( array(
+		'dry_run'   => $dry_run,
+		'detected'  => $detect,
+		'project_id' => $project_id,
+		'actions'   => $actions,
+	) );
+}
 
 /* -------------------------------------------------------------------------
  * AuthN / AuthZ
@@ -222,8 +371,12 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
 		}
 		$row_result['title'] = $title;
 
-		// Duplicate check — same title within the same project.
-		$existing_id = hrc_flat_find_by_title_and_project( $title, $project_id, $map );
+		$size_for_key   = isset( $raw['size_sqft'] ) ? (int) $raw['size_sqft'] : 0;
+		$tower_for_key  = isset( $raw['tower'] ) ? sanitize_text_field( (string) $raw['tower'] ) : '';
+		$facing_for_key = isset( $raw['facing'] ) ? sanitize_text_field( (string) $raw['facing'] ) : '';
+
+		// Composite duplicate check: project + title + size + tower + facing.
+		$existing_id = hrc_flat_find_composite_duplicate( $title, $project_id, $size_for_key, $tower_for_key, $facing_for_key, $map );
 		if ( $existing_id ) {
 			$row_result['action']  = 'skipped_duplicate';
 			$row_result['post_id'] = $existing_id;
@@ -254,6 +407,13 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
 		}
 
 		hrc_flat_apply_meta( $post_id, $raw, $project_id, $map );
+		// Apply the detected project linkage (post_parent / taxonomy / meta).
+		$link_res = hrc_flat_apply_project_link( $post_id, $project_id );
+		if ( is_wp_error( $link_res ) ) {
+			$row_result['link_warning'] = $link_res->get_error_message();
+		} else {
+			$row_result['link'] = $link_res;
+		}
 
 		if ( $attachment_id > 0 ) {
 			set_post_thumbnail( $post_id, $attachment_id );
@@ -284,6 +444,7 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
  * ---------------------------------------------------------------------- */
 
 function hrc_flat_find_by_title_and_project( $title, $project_id, array $map ) {
+	// Legacy title-only variant, kept for reference.
 	$args = array(
 		'post_type'      => HRC_FLAT_POST_TYPE,
 		'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
@@ -294,19 +455,102 @@ function hrc_flat_find_by_title_and_project( $title, $project_id, array $map ) {
 	);
 	$q = new WP_Query( $args );
 	if ( ! $q->have_posts() ) return 0;
-
 	$project_key = $map['project'] ?? null;
-	if ( ! $project_key ) {
-		// No project meta key discovered — fall back to title-only dedupe.
-		return (int) $q->posts[0];
-	}
+	if ( ! $project_key ) return (int) $q->posts[0];
 	foreach ( $q->posts as $pid ) {
-		$val = get_post_meta( (int) $pid, $project_key, true );
-		if ( (int) $val === (int) $project_id ) {
+		if ( (int) get_post_meta( (int) $pid, $project_key, true ) === (int) $project_id ) return (int) $pid;
+	}
+	return 0;
+}
+
+/**
+ * Composite duplicate: same project AND same title AND same size AND
+ * same tower AND same facing. Uses the detected project-link mechanism
+ * (post_parent / taxonomy / meta) to scope by project.
+ */
+function hrc_flat_find_composite_duplicate( $title, $project_id, $size_sqft, $tower, $facing, array $map ) {
+	$candidates = hrc_flat_query_project_flat_ids( $project_id );
+	if ( ! $candidates ) return 0;
+	$title_norm  = mb_strtolower( trim( (string) $title ) );
+	$tower_norm  = mb_strtolower( trim( (string) $tower ) );
+	$facing_norm = mb_strtolower( trim( (string) $facing ) );
+	foreach ( $candidates as $pid ) {
+		$p = get_post( (int) $pid );
+		if ( ! $p ) continue;
+		if ( mb_strtolower( trim( $p->post_title ) ) !== $title_norm ) continue;
+		$c_size   = (int) get_post_meta( $pid, $map['size'], true );
+		$c_tower  = mb_strtolower( trim( (string) get_post_meta( $pid, $map['tower'], true ) ) );
+		$c_facing = mb_strtolower( trim( (string) get_post_meta( $pid, $map['facing'], true ) ) );
+		if ( $c_size === (int) $size_sqft && $c_tower === $tower_norm && $c_facing === $facing_norm ) {
 			return (int) $pid;
 		}
 	}
 	return 0;
+}
+
+/**
+ * Return all hrc_flat post IDs linked to $project_id via the detected
+ * linkage (post_parent / taxonomy / meta). Best-effort superset: on
+ * unknown linkage, falls back to all flats.
+ */
+function hrc_flat_query_project_flat_ids( $project_id ) {
+	$detect = hrc_flat_admin_detect_project_link( HRC_FLAT_REFERENCE_ID );
+	$args = array(
+		'post_type'      => HRC_FLAT_POST_TYPE,
+		'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	);
+	if ( ! is_wp_error( $detect ) ) {
+		if ( $detect['method'] === 'post_parent' ) {
+			$args['post_parent'] = (int) $project_id;
+		} elseif ( $detect['method'] === 'taxonomy' ) {
+			$project = get_post( (int) $project_id );
+			if ( $project ) {
+				$term = get_term_by( 'slug', $project->post_name, $detect['taxonomy'] );
+				if ( $term ) {
+					$args['tax_query'] = array( array(
+						'taxonomy' => $detect['taxonomy'],
+						'field'    => 'term_id',
+						'terms'    => (int) $term->term_id,
+					) );
+				}
+			}
+		} elseif ( $detect['method'] === 'meta' ) {
+			$args['meta_query'] = array( array(
+				'key'   => $detect['meta_key'],
+				'value' => (int) $project_id,
+			) );
+		}
+	}
+	$q = new WP_Query( $args );
+	return $q->posts ?: array();
+}
+
+/**
+ * Link one flat post to a project using the detected mechanism.
+ * Returns an array describing the action, or WP_Error.
+ */
+function hrc_flat_apply_project_link( $flat_id, $project_id ) {
+	$detect = hrc_flat_admin_detect_project_link( HRC_FLAT_REFERENCE_ID );
+	if ( is_wp_error( $detect ) ) return $detect;
+	if ( $detect['method'] === 'post_parent' ) {
+		wp_update_post( array( 'ID' => (int) $flat_id, 'post_parent' => (int) $project_id ) );
+		return array( 'method' => 'post_parent', 'project_id' => (int) $project_id );
+	}
+	if ( $detect['method'] === 'taxonomy' ) {
+		$project = get_post( (int) $project_id );
+		$term = $project ? get_term_by( 'slug', $project->post_name, $detect['taxonomy'] ) : null;
+		if ( ! $term ) return new WP_Error( 'no_term', "no term in {$detect['taxonomy']} for project slug" );
+		wp_set_object_terms( (int) $flat_id, array( (int) $term->term_id ), $detect['taxonomy'], false );
+		return array( 'method' => 'taxonomy', 'taxonomy' => $detect['taxonomy'], 'term_id' => (int) $term->term_id );
+	}
+	if ( $detect['method'] === 'meta' ) {
+		update_post_meta( (int) $flat_id, $detect['meta_key'], (int) $project_id );
+		return array( 'method' => 'meta', 'meta_key' => $detect['meta_key'], 'project_id' => (int) $project_id );
+	}
+	return new WP_Error( 'link_unknown', 'unknown link method' );
 }
 
 function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
