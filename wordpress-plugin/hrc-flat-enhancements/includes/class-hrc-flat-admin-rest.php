@@ -444,6 +444,7 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
  * ---------------------------------------------------------------------- */
 
 function hrc_flat_find_by_title_and_project( $title, $project_id, array $map ) {
+	// Legacy title-only variant, kept for reference.
 	$args = array(
 		'post_type'      => HRC_FLAT_POST_TYPE,
 		'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
@@ -454,19 +455,102 @@ function hrc_flat_find_by_title_and_project( $title, $project_id, array $map ) {
 	);
 	$q = new WP_Query( $args );
 	if ( ! $q->have_posts() ) return 0;
-
 	$project_key = $map['project'] ?? null;
-	if ( ! $project_key ) {
-		// No project meta key discovered — fall back to title-only dedupe.
-		return (int) $q->posts[0];
-	}
+	if ( ! $project_key ) return (int) $q->posts[0];
 	foreach ( $q->posts as $pid ) {
-		$val = get_post_meta( (int) $pid, $project_key, true );
-		if ( (int) $val === (int) $project_id ) {
+		if ( (int) get_post_meta( (int) $pid, $project_key, true ) === (int) $project_id ) return (int) $pid;
+	}
+	return 0;
+}
+
+/**
+ * Composite duplicate: same project AND same title AND same size AND
+ * same tower AND same facing. Uses the detected project-link mechanism
+ * (post_parent / taxonomy / meta) to scope by project.
+ */
+function hrc_flat_find_composite_duplicate( $title, $project_id, $size_sqft, $tower, $facing, array $map ) {
+	$candidates = hrc_flat_query_project_flat_ids( $project_id );
+	if ( ! $candidates ) return 0;
+	$title_norm  = mb_strtolower( trim( (string) $title ) );
+	$tower_norm  = mb_strtolower( trim( (string) $tower ) );
+	$facing_norm = mb_strtolower( trim( (string) $facing ) );
+	foreach ( $candidates as $pid ) {
+		$p = get_post( (int) $pid );
+		if ( ! $p ) continue;
+		if ( mb_strtolower( trim( $p->post_title ) ) !== $title_norm ) continue;
+		$c_size   = (int) get_post_meta( $pid, $map['size'], true );
+		$c_tower  = mb_strtolower( trim( (string) get_post_meta( $pid, $map['tower'], true ) ) );
+		$c_facing = mb_strtolower( trim( (string) get_post_meta( $pid, $map['facing'], true ) ) );
+		if ( $c_size === (int) $size_sqft && $c_tower === $tower_norm && $c_facing === $facing_norm ) {
 			return (int) $pid;
 		}
 	}
 	return 0;
+}
+
+/**
+ * Return all hrc_flat post IDs linked to $project_id via the detected
+ * linkage (post_parent / taxonomy / meta). Best-effort superset: on
+ * unknown linkage, falls back to all flats.
+ */
+function hrc_flat_query_project_flat_ids( $project_id ) {
+	$detect = hrc_flat_admin_detect_project_link( HRC_FLAT_REFERENCE_ID );
+	$args = array(
+		'post_type'      => HRC_FLAT_POST_TYPE,
+		'post_status'    => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	);
+	if ( ! is_wp_error( $detect ) ) {
+		if ( $detect['method'] === 'post_parent' ) {
+			$args['post_parent'] = (int) $project_id;
+		} elseif ( $detect['method'] === 'taxonomy' ) {
+			$project = get_post( (int) $project_id );
+			if ( $project ) {
+				$term = get_term_by( 'slug', $project->post_name, $detect['taxonomy'] );
+				if ( $term ) {
+					$args['tax_query'] = array( array(
+						'taxonomy' => $detect['taxonomy'],
+						'field'    => 'term_id',
+						'terms'    => (int) $term->term_id,
+					) );
+				}
+			}
+		} elseif ( $detect['method'] === 'meta' ) {
+			$args['meta_query'] = array( array(
+				'key'   => $detect['meta_key'],
+				'value' => (int) $project_id,
+			) );
+		}
+	}
+	$q = new WP_Query( $args );
+	return $q->posts ?: array();
+}
+
+/**
+ * Link one flat post to a project using the detected mechanism.
+ * Returns an array describing the action, or WP_Error.
+ */
+function hrc_flat_apply_project_link( $flat_id, $project_id ) {
+	$detect = hrc_flat_admin_detect_project_link( HRC_FLAT_REFERENCE_ID );
+	if ( is_wp_error( $detect ) ) return $detect;
+	if ( $detect['method'] === 'post_parent' ) {
+		wp_update_post( array( 'ID' => (int) $flat_id, 'post_parent' => (int) $project_id ) );
+		return array( 'method' => 'post_parent', 'project_id' => (int) $project_id );
+	}
+	if ( $detect['method'] === 'taxonomy' ) {
+		$project = get_post( (int) $project_id );
+		$term = $project ? get_term_by( 'slug', $project->post_name, $detect['taxonomy'] ) : null;
+		if ( ! $term ) return new WP_Error( 'no_term', "no term in {$detect['taxonomy']} for project slug" );
+		wp_set_object_terms( (int) $flat_id, array( (int) $term->term_id ), $detect['taxonomy'], false );
+		return array( 'method' => 'taxonomy', 'taxonomy' => $detect['taxonomy'], 'term_id' => (int) $term->term_id );
+	}
+	if ( $detect['method'] === 'meta' ) {
+		update_post_meta( (int) $flat_id, $detect['meta_key'], (int) $project_id );
+		return array( 'method' => 'meta', 'meta_key' => $detect['meta_key'], 'project_id' => (int) $project_id );
+	}
+	return new WP_Error( 'link_unknown', 'unknown link method' );
 }
 
 function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
