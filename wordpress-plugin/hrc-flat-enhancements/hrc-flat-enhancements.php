@@ -99,51 +99,90 @@ add_action( 'save_post_' . HRC_FLAT_POST_TYPE, function ( $post_id ) {
 } );
 
 /* -------------------------------------------------------------------------
- * REST: extend /hrc/v1/flats items with `ribbon` and `featured_image`.
- * We hook the response filter so we do not touch the HRC plugin source.
+ * REST: extend HRC responses that carry flat objects with `ribbon` and
+ * `featured_image`. The custom HRC controller does NOT run through
+ * register_rest_field(), so we augment its output via rest_post_dispatch —
+ * a core WP filter that fires for every REST response, including custom
+ * routes. We handle three shapes observed on the live API:
+ *
+ *   1) /hrc/v1/flats                    -> { items: [ flat, ... ], ... }
+ *   2) /hrc/v1/flats/{id}               -> { id, ... }  (single flat)
+ *   3) /hrc/v1/projects/{slug}          -> { ..., flats: [ flat, ... ] }
+ *
+ * We only touch objects that look like a flat (post_type === hrc_flat).
  * ---------------------------------------------------------------------- */
+
+function hrc_flat_is_flat_post( $id ) {
+	if ( ! $id ) return false;
+	$pt = get_post_type( (int) $id );
+	return $pt === HRC_FLAT_POST_TYPE;
+}
+
+function hrc_flat_augment( array $item ) {
+	if ( empty( $item['id'] ) || ! hrc_flat_is_flat_post( $item['id'] ) ) {
+		return $item;
+	}
+	$id = (int) $item['id'];
+
+	// Ribbon — always present; "none" when unset.
+	$stored = get_post_meta( $id, HRC_FLAT_RIBBON_META, true );
+	$item['ribbon'] = $stored ? hrc_flat_sanitize_ribbon( $stored ) : 'none';
+
+	// featured_image — only when the upstream response left it empty/false.
+	$existing = array_key_exists( 'featured_image', $item ) ? $item['featured_image'] : null;
+	if ( empty( $existing ) ) {
+		$thumb_id = get_post_thumbnail_id( $id );
+		if ( $thumb_id ) {
+			$url = wp_get_attachment_image_url( $thumb_id, 'large' );
+			$item['featured_image'] = $url ? $url : false;
+		} elseif ( ! array_key_exists( 'featured_image', $item ) ) {
+			$item['featured_image'] = false;
+		}
+	}
+	return $item;
+}
 
 add_filter( 'rest_post_dispatch', function ( $response, $server, $request ) {
 	if ( ! ( $response instanceof WP_REST_Response ) ) return $response;
 
 	$route = $request->get_route();
-	if ( strpos( $route, '/hrc/v1/flats' ) !== 0 ) return $response;
+	// Only touch our custom HRC namespace.
+	if ( strpos( $route, '/hrc/v1/' ) !== 0 ) return $response;
 
 	$data = $response->get_data();
 	if ( ! is_array( $data ) ) return $response;
 
-	$is_collection = isset( $data[0] ) && is_array( $data[0] );
-	$items = $is_collection ? $data : array( $data );
-
-	foreach ( $items as &$item ) {
-		if ( ! is_array( $item ) || empty( $item['id'] ) ) continue;
-		$id = (int) $item['id'];
-
-		// Ribbon (always present; defaults to "none").
-		if ( ! array_key_exists( 'ribbon', $item ) ) {
-			$stored = get_post_meta( $id, HRC_FLAT_RIBBON_META, true );
-			$item['ribbon'] = $stored ? hrc_flat_sanitize_ribbon( $stored ) : 'none';
-		}
-
-		// Featured image only if the core response did not already include it.
-		if ( ! array_key_exists( 'featured_image', $item ) || empty( $item['featured_image'] ) ) {
-			$thumb_id = get_post_thumbnail_id( $id );
-			if ( $thumb_id ) {
-				$url = wp_get_attachment_image_url( $thumb_id, 'large' );
-				$item['featured_image'] = $url ? $url : false;
-			} else {
-				// Preserve original key if present, otherwise set false for consistency.
-				if ( ! array_key_exists( 'featured_image', $item ) ) {
-					$item['featured_image'] = false;
-				}
-			}
+	// (1) Wrapped collection { items: [...] } — e.g. /hrc/v1/flats, /hrc/v1/projects
+	if ( isset( $data['items'] ) && is_array( $data['items'] ) ) {
+		foreach ( $data['items'] as $i => $it ) {
+			if ( is_array( $it ) ) $data['items'][ $i ] = hrc_flat_augment( $it );
 		}
 	}
-	unset( $item );
 
-	$response->set_data( $is_collection ? $items : $items[0] );
+	// (2) Single flat resource — { id, ... } where id is an hrc_flat post
+	if ( isset( $data['id'] ) && hrc_flat_is_flat_post( $data['id'] ) ) {
+		$data = hrc_flat_augment( $data );
+	}
+
+	// (3) Project resource with embedded flats array — { flats: [ ... ] }
+	if ( isset( $data['flats'] ) && is_array( $data['flats'] ) ) {
+		foreach ( $data['flats'] as $i => $it ) {
+			if ( is_array( $it ) ) $data['flats'][ $i ] = hrc_flat_augment( $it );
+		}
+	}
+
+	// (4) Bare list [ flat, flat, ... ] — defensive
+	if ( isset( $data[0] ) && is_array( $data[0] ) ) {
+		foreach ( $data as $i => $it ) {
+			if ( is_array( $it ) ) $data[ $i ] = hrc_flat_augment( $it );
+		}
+	}
+
+	$response->set_data( $data );
 	return $response;
 }, 20, 3 );
+
+
 
 /* -------------------------------------------------------------------------
  * Ensure `hrc_flat` supports thumbnails (safe no-op if it already does).
