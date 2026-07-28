@@ -371,8 +371,12 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
 		}
 		$row_result['title'] = $title;
 
-		// Duplicate check — same title within the same project.
-		$existing_id = hrc_flat_find_by_title_and_project( $title, $project_id, $map );
+		$size_for_key   = isset( $raw['size_sqft'] ) ? (int) $raw['size_sqft'] : 0;
+		$tower_for_key  = isset( $raw['tower'] ) ? sanitize_text_field( (string) $raw['tower'] ) : '';
+		$facing_for_key = isset( $raw['facing'] ) ? sanitize_text_field( (string) $raw['facing'] ) : '';
+
+		// Composite duplicate check: project + title + size + tower + facing.
+		$existing_id = hrc_flat_find_composite_duplicate( $title, $project_id, $size_for_key, $tower_for_key, $facing_for_key, $map );
 		if ( $existing_id ) {
 			$row_result['action']  = 'skipped_duplicate';
 			$row_result['post_id'] = $existing_id;
@@ -403,6 +407,13 @@ function hrc_flat_admin_bulk_import( WP_REST_Request $request ) {
 		}
 
 		hrc_flat_apply_meta( $post_id, $raw, $project_id, $map );
+		// Apply the detected project linkage (post_parent / taxonomy / meta).
+		$link_res = hrc_flat_apply_project_link( $post_id, $project_id );
+		if ( is_wp_error( $link_res ) ) {
+			$row_result['link_warning'] = $link_res->get_error_message();
+		} else {
+			$row_result['link'] = $link_res;
+		}
 
 		if ( $attachment_id > 0 ) {
 			set_post_thumbnail( $post_id, $attachment_id );
