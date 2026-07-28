@@ -639,8 +639,9 @@ function AvailableFlats({ project }: { project: Project }) {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {flats.map((f) => <FlatCard key={f.id} flat={f} />)}
+            {flats.map((f) => <FlatCard key={f.id} flat={f} project={project} />)}
           </div>
+
         )}
       </div>
     </Section>
@@ -671,20 +672,63 @@ function FilterField({
   );
 }
 
-function FlatCard({ flat }: { flat: Flat }) {
+const RIBBON_LABELS: Record<string, string> = {
+  featured: "Featured",
+  premium: "Premium",
+  best_value: "Best Value",
+  limited_availability: "Limited Availability",
+  ready_to_move: "Ready to Move",
+  hot_deal: "Hot Deal",
+};
+
+function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
   const rec = flat as unknown as { tower?: string; floor?: string | number; status?: string };
   const { open: openEnquiry } = useEnquiry();
+
+  const imageUrl = imageSrc(
+    (flat.featured_image as string | false | undefined) ||
+      (project.featured_image as string | false | undefined) ||
+      null,
+  );
+
+  const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
+  const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
+
+  const contextBits = [
+    flat.bhk,
+    rec.tower ? `Tower ${rec.tower}` : null,
+    rec.floor != null && rec.floor !== "" ? `Floor ${rec.floor}` : null,
+    flat.facing ? `${flat.facing} facing` : null,
+    flat.price ? formatPriceInr(flat.price) : null,
+  ].filter(Boolean) as string[];
+
+  const handleEnquire = () => {
+    openEnquiry({
+      project: project.title,
+      projectId: project.id,
+      subtitle: `${project.title} — Flat #${flat.id}${contextBits.length ? " · " + contextBits.join(" · ") : ""}`,
+    });
+  };
+
   return (
-    <div className="group overflow-hidden rounded-2xl border border-[color:var(--mist)] bg-white shadow-[0_10px_40px_-24px_rgba(10,31,68,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(10,31,68,.35)]">
-      {flat.floor_plan ? (
-        <div className="aspect-[4/3] w-full overflow-hidden bg-[color:var(--ivory)]">
-          <img
-            src={flat.floor_plan}
-            alt={`${flat.bhk} floor plan`}
-            className="h-full w-full object-contain p-4 transition group-hover:scale-[1.02]"
-          />
-        </div>
-      ) : null}
+    <div className="group relative overflow-hidden rounded-2xl border border-[color:var(--mist)] bg-white shadow-[0_10px_40px_-24px_rgba(10,31,68,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(10,31,68,.35)]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[color:var(--ivory)]">
+        <img
+          src={imageUrl}
+          alt={`${flat.bhk || "Flat"} — ${project.title}`}
+          loading="lazy"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+        />
+        {ribbonLabel ? (
+          <div className="absolute left-0 top-3 z-10">
+            <div className="relative flex items-center gap-1.5 bg-[color:var(--navy)] py-1.5 pl-3 pr-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)] shadow-[0_6px_20px_-8px_rgba(10,31,68,.5)]">
+              <span className="h-1 w-1 rounded-full bg-[color:var(--gold)]" />
+              {ribbonLabel}
+              <span className="absolute -right-2 top-0 h-full w-2 [clip-path:polygon(0_0,0_100%,100%_50%)] bg-[color:var(--navy)]" />
+            </div>
+          </div>
+        ) : null}
+      </div>
       <div className="p-5">
         <div className="flex items-center justify-between">
           <div className="font-serif text-lg font-semibold text-[color:var(--navy)]">
@@ -697,9 +741,7 @@ function FlatCard({ flat }: { flat: Flat }) {
           ) : null}
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-          {rec.tower ? (
-            <Fact label="Tower" value={rec.tower} />
-          ) : null}
+          {rec.tower ? <Fact label="Tower" value={rec.tower} /> : null}
           {rec.floor != null && rec.floor !== "" ? (
             <Fact label="Floor" value={String(rec.floor)} />
           ) : null}
@@ -720,7 +762,11 @@ function FlatCard({ flat }: { flat: Flat }) {
               {flat.price ? formatPriceInr(flat.price) : "On Request"}
             </div>
           </div>
-          <button type="button" onClick={() => openEnquiry()} className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]">
+          <button
+            type="button"
+            onClick={handleEnquire}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--navy)] hover:text-[color:var(--gold)]"
+          >
             Enquire <Send className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -728,6 +774,7 @@ function FlatCard({ flat }: { flat: Flat }) {
     </div>
   );
 }
+
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
