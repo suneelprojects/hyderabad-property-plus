@@ -348,15 +348,6 @@ function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
 	}
 }
 
-/* -------------------------------------------------------------------------
- * Register the custom capability on plugin activation so admins can grant
- * the endpoint to a dedicated integration user without granting full
- * manage_options.
- * ---------------------------------------------------------------------- */
+/* Activation hook lives in the main plugin file (register_activation_hook
+ * only fires for the plugin's own base file). */
 
-register_activation_hook( __FILE__, function () {
-	$role = get_role( 'administrator' );
-	if ( $role && ! $role->has_cap( HRC_FLAT_ADMIN_CAP ) ) {
-		$role->add_cap( HRC_FLAT_ADMIN_CAP );
-	}
-} );
