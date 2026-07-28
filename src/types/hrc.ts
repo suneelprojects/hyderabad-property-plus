@@ -112,6 +112,15 @@ export interface NearbyPlace {
   distance?: string;
 }
 
+export type FlatRibbon =
+  | "none"
+  | "featured"
+  | "premium"
+  | "best_value"
+  | "limited_availability"
+  | "ready_to_move"
+  | "hot_deal";
+
 export interface Flat {
   id: Id;
   project_id: Id;
@@ -122,7 +131,12 @@ export interface Flat {
   facing?: string;
   carpet_area?: string;
   built_up_area?: string;
+  /** Optional flat-level featured image (WordPress post thumbnail). */
+  featured_image?: string | false;
+  /** Optional ribbon label; `"none"` (or missing) hides the ribbon. */
+  ribbon?: FlatRibbon | string;
 }
+
 
 export interface Amenity {
   id: Id;
