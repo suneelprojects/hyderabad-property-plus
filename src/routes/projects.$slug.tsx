@@ -469,12 +469,13 @@ function QuickFacts({ project }: { project: Project }) {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--ivory)] text-[color:var(--gold)]">
                 {it.icon}
               </div>
-              <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <div className="mt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
                 {it.label}
               </div>
-              <div className="mt-1 font-serif text-lg font-semibold text-[color:var(--navy)]">
+              <div className="mt-1.5 font-serif text-lg font-semibold text-[color:var(--navy)] leading-snug">
                 {it.value}
               </div>
+
             </div>
           ))}
         </div>
