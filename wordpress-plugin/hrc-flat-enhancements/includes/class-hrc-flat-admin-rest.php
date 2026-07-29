@@ -73,7 +73,9 @@ add_action( 'rest_api_init', function () {
 				return rest_ensure_response( array(
 					'id'          => $id,
 					'post_type'   => $p->post_type,
+					'post_status' => $p->post_status,
 					'post_parent' => $p->post_parent,
+					'post_date'   => $p->post_date,
 					'title'       => $p->post_title,
 					'meta'        => get_post_meta( $id ),
 					'taxonomies'  => $taxes,
@@ -185,6 +187,12 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 				wp_set_object_terms( $fid, array( $target_term_id ), $detect['taxonomy'], false );
 			} elseif ( $detect['method'] === 'meta' ) {
 				update_post_meta( $fid, $detect['meta_key'], $project_id );
+			}
+			// Backfill _hrc_status so the HRC listing endpoint includes this flat.
+			$cur_status = get_post_meta( $fid, '_hrc_status', true );
+			if ( ! $cur_status ) {
+				update_post_meta( $fid, '_hrc_status', 'Available' );
+				$act['status_backfilled'] = 'Available';
 			}
 			$act['action'] = 'linked';
 		}
@@ -584,6 +592,12 @@ function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
 	if ( ! empty( $map['project'] ) ) {
 		update_post_meta( $post_id, $map['project'], (int) $project_id );
 	}
+
+	// Ensure HRC listing endpoint includes this flat. HRC's /hrc/v1/flats
+	// query filters by _hrc_status; without it the flat is invisible.
+	$status_in  = isset( $raw['status'] ) ? sanitize_text_field( (string) $raw['status'] ) : '';
+	$status_val = $status_in !== '' ? $status_in : 'Available';
+	update_post_meta( $post_id, '_hrc_status', $status_val );
 
 	if ( 'none' === $ribbon ) {
 		delete_post_meta( $post_id, HRC_FLAT_RIBBON_META );
