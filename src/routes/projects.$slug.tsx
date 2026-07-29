@@ -470,6 +470,7 @@ function QuickFacts({ project }: { project: Project }) {
                 {it.icon}
               </div>
               <div className="mt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
+
                 {it.label}
               </div>
               <div className="mt-1.5 font-serif text-lg font-semibold text-[color:var(--navy)] leading-snug">
@@ -829,7 +830,7 @@ function FlatCard({
         </dl>
         <div className="mt-3 flex items-center justify-between border-t border-[color:var(--mist)] pt-3">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
               Price
             </div>
             <div className="font-serif text-base font-semibold text-[color:var(--gold)]">
@@ -853,7 +854,7 @@ function FlatCard({
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--label)]">
         {label}
       </dt>
       <dd className="mt-0.5 font-medium text-[color:var(--navy)]">{value}</dd>
