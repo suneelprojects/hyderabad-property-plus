@@ -593,6 +593,12 @@ function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
 		update_post_meta( $post_id, $map['project'], (int) $project_id );
 	}
 
+	// Ensure HRC listing endpoint includes this flat. HRC's /hrc/v1/flats
+	// query filters by _hrc_status; without it the flat is invisible.
+	$status_in  = isset( $raw['status'] ) ? sanitize_text_field( (string) $raw['status'] ) : '';
+	$status_val = $status_in !== '' ? $status_in : 'Available';
+	update_post_meta( $post_id, '_hrc_status', $status_val );
+
 	if ( 'none' === $ribbon ) {
 		delete_post_meta( $post_id, HRC_FLAT_RIBBON_META );
 	} else {
