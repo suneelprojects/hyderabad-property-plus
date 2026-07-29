@@ -645,7 +645,27 @@ function AvailableFlats({ project }: { project: Project }) {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {flats.map((f) => <FlatCard key={f.id} flat={f} project={project} />)}
+            {(() => {
+              const imgs = resolveFlatImagesForList(
+                flats.map((f) => {
+                  const r = f as unknown as { title?: string; size_sqft?: string | number };
+                  const sz = r.size_sqft;
+                  return {
+                    id: f.id,
+                    title: r.title ?? null,
+                    facing: f.facing ?? null,
+                    bhk: f.bhk ?? null,
+                    sizeSqft:
+                      sz !== undefined && sz !== null && sz !== "" ? Number(sz) : null,
+                    ribbon: (f.ribbon as string | undefined) ?? null,
+                    featured_image: f.featured_image,
+                  };
+                }),
+              );
+              return flats.map((f, i) => (
+                <FlatCard key={f.id} flat={f} project={project} image={imgs[i]} />
+              ));
+            })()}
           </div>
 
         )}
