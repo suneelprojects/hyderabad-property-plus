@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HRC Flat Enhancements
  * Description: Adds an optional ribbon selector to HRC Flat posts and exposes it (and the featured image) in the /hrc/v1/flats REST response. Zero modifications to the core HRC plugin.
- * Version:     1.0.0
+ * Version:     1.0.4
  * Author:      Hyderabad Realty Choices
  * License:     GPL-2.0-or-later
  * Requires PHP: 7.4
