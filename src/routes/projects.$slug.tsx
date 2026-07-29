@@ -595,7 +595,7 @@ function PriceInformation({
                 {r.icon}
               </div>
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
                   {r.label}
                 </div>
                 <div className="mt-1 font-medium text-[color:var(--navy)]">
