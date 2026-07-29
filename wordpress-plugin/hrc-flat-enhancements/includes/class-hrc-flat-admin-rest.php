@@ -194,6 +194,13 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 				update_post_meta( $fid, '_hrc_status', 'Available' );
 				$act['status_backfilled'] = 'Available';
 			}
+			// HRC listing controller filters by presence of _hrc_price / _hrc_floor.
+			// Ensure both keys exist (empty is fine) so newly imported flats surface.
+			foreach ( array( '_hrc_price', '_hrc_floor' ) as $mk ) {
+				if ( metadata_exists( 'post', $fid, $mk ) ) continue;
+				update_post_meta( $fid, $mk, '' );
+				$act['meta_backfilled'][] = $mk;
+			}
 			$act['action'] = 'linked';
 		}
 		$actions[] = $act;
