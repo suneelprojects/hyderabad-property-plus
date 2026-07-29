@@ -177,9 +177,18 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 			$actions[] = array( 'flat_id' => $fid, 'action' => 'skip', 'reason' => 'not an hrc_flat' );
 			continue;
 		}
-		$act = array( 'flat_id' => $fid, 'method' => $detect['method'] );
+		$act = array(
+			'flat_id'           => $fid,
+			'method'            => $detect['method'],
+			'status_backfilled' => false,
+			'price_backfilled'  => false,
+			'floor_backfilled'  => false,
+		);
 		if ( $dry_run ) {
 			$act['action'] = 'would_link';
+			$act['status_backfilled'] = ! get_post_meta( $fid, '_hrc_status', true );
+			$act['price_backfilled']  = ! metadata_exists( 'post', $fid, '_hrc_price' );
+			$act['floor_backfilled']  = ! metadata_exists( 'post', $fid, '_hrc_floor' );
 		} else {
 			if ( $detect['method'] === 'post_parent' ) {
 				wp_update_post( array( 'ID' => $fid, 'post_parent' => $project_id ) );
@@ -188,18 +197,17 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 			} elseif ( $detect['method'] === 'meta' ) {
 				update_post_meta( $fid, $detect['meta_key'], $project_id );
 			}
-			// Backfill _hrc_status so the HRC listing endpoint includes this flat.
-			$cur_status = get_post_meta( $fid, '_hrc_status', true );
-			if ( ! $cur_status ) {
+			if ( ! get_post_meta( $fid, '_hrc_status', true ) ) {
 				update_post_meta( $fid, '_hrc_status', 'Available' );
-				$act['status_backfilled'] = 'Available';
+				$act['status_backfilled'] = true;
 			}
-			// HRC listing controller filters by presence of _hrc_price / _hrc_floor.
-			// Ensure both keys exist (empty is fine) so newly imported flats surface.
-			foreach ( array( '_hrc_price', '_hrc_floor' ) as $mk ) {
-				if ( metadata_exists( 'post', $fid, $mk ) ) continue;
-				update_post_meta( $fid, $mk, '' );
-				$act['meta_backfilled'][] = $mk;
+			if ( ! metadata_exists( 'post', $fid, '_hrc_price' ) ) {
+				update_post_meta( $fid, '_hrc_price', '' );
+				$act['price_backfilled'] = true;
+			}
+			if ( ! metadata_exists( 'post', $fid, '_hrc_floor' ) ) {
+				update_post_meta( $fid, '_hrc_floor', '' );
+				$act['floor_backfilled'] = true;
 			}
 			$act['action'] = 'linked';
 		}
