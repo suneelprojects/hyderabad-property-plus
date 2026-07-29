@@ -47,7 +47,11 @@ import {
 import { HrcApiError } from "@/services/api";
 import { formatArea, formatPriceInr } from "@/lib/format";
 import { imageSrc } from "@/lib/image";
-import { getFlatImage, FLAT_FALLBACK_IMAGE } from "@/lib/flat-imagery";
+import {
+  resolveFlatImagesForList,
+  FLAT_FALLBACK_IMAGE,
+  type ResolvedFlatImage,
+} from "@/lib/flat-imagery";
 import { decodeEntities } from "@/lib/html";
 import { cn } from "@/lib/utils";
 import type { Flat, Project } from "@/types/hrc";
@@ -641,7 +645,27 @@ function AvailableFlats({ project }: { project: Project }) {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {flats.map((f) => <FlatCard key={f.id} flat={f} project={project} />)}
+            {(() => {
+              const imgs = resolveFlatImagesForList(
+                flats.map((f) => {
+                  const r = f as unknown as { title?: string; size_sqft?: string | number };
+                  const sz = r.size_sqft;
+                  return {
+                    id: f.id,
+                    title: r.title ?? null,
+                    facing: f.facing ?? null,
+                    bhk: f.bhk ?? null,
+                    sizeSqft:
+                      sz !== undefined && sz !== null && sz !== "" ? Number(sz) : null,
+                    ribbon: (f.ribbon as string | undefined) ?? null,
+                    featured_image: f.featured_image,
+                  };
+                }),
+              );
+              return flats.map((f, i) => (
+                <FlatCard key={f.id} flat={f} project={project} image={imgs[i]} />
+              ));
+            })()}
           </div>
 
         )}
@@ -683,7 +707,15 @@ const RIBBON_LABELS: Record<string, string> = {
   hot_deal: "Hot Deal",
 };
 
-function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
+function FlatCard({
+  flat,
+  project,
+  image,
+}: {
+  flat: Flat;
+  project: Project;
+  image: ResolvedFlatImage;
+}) {
   const rec = flat as unknown as {
     title?: string;
     flat_number?: string | number;
@@ -694,19 +726,8 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
   };
   const { open: openEnquiry } = useEnquiry();
 
-  const imageUrl = getFlatImage(
-    flat.featured_image as string | false | null | undefined,
-    {
-      id: flat.id,
-      title: rec.title ?? null,
-      facing: flat.facing ?? null,
-      bhk: flat.bhk ?? null,
-      sizeSqft: rec.size_sqft !== undefined && rec.size_sqft !== null && rec.size_sqft !== ""
-        ? Number(rec.size_sqft)
-        : null,
-      ribbon: (flat.ribbon as string | undefined) ?? null,
-    },
-  );
+  const imageUrl = image.url;
+  const isCurated = image.isCurated;
 
   const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
   const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
@@ -776,6 +797,8 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
         />
         {/* subtle top-gradient for ribbon legibility */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" />
+        {/* soft bottom-gradient for premium transition into content */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
         {ribbonLabel ? (
           <div className="absolute left-0 top-3 z-10">
             <div className="relative flex items-center gap-1.5 bg-[color:var(--navy)] py-1.5 pl-3 pr-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)] shadow-[0_6px_20px_-8px_rgba(10,31,68,.5)]">
@@ -783,6 +806,11 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
               {ribbonLabel}
               <span className="absolute -right-2 top-0 h-full w-2 [clip-path:polygon(0_0,0_100%,100%_50%)] bg-[color:var(--navy)]" />
             </div>
+          </div>
+        ) : null}
+        {isCurated ? (
+          <div className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-full bg-black/40 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm ring-1 ring-white/15">
+            Representative Image
           </div>
         ) : null}
       </div>
