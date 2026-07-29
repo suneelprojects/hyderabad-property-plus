@@ -73,7 +73,9 @@ add_action( 'rest_api_init', function () {
 				return rest_ensure_response( array(
 					'id'          => $id,
 					'post_type'   => $p->post_type,
+					'post_status' => $p->post_status,
 					'post_parent' => $p->post_parent,
+					'post_date'   => $p->post_date,
 					'title'       => $p->post_title,
 					'meta'        => get_post_meta( $id ),
 					'taxonomies'  => $taxes,
