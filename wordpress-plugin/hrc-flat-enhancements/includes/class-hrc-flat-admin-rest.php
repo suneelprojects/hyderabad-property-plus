@@ -188,6 +188,12 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 			} elseif ( $detect['method'] === 'meta' ) {
 				update_post_meta( $fid, $detect['meta_key'], $project_id );
 			}
+			// Backfill _hrc_status so the HRC listing endpoint includes this flat.
+			$cur_status = get_post_meta( $fid, '_hrc_status', true );
+			if ( ! $cur_status ) {
+				update_post_meta( $fid, '_hrc_status', 'Available' );
+				$act['status_backfilled'] = 'Available';
+			}
 			$act['action'] = 'linked';
 		}
 		$actions[] = $act;
