@@ -194,6 +194,13 @@ function hrc_flat_admin_repair_project( WP_REST_Request $req ) {
 				update_post_meta( $fid, '_hrc_status', 'Available' );
 				$act['status_backfilled'] = 'Available';
 			}
+			// HRC listing controller filters by presence of _hrc_price / _hrc_floor.
+			// Ensure both keys exist (empty is fine) so newly imported flats surface.
+			foreach ( array( '_hrc_price', '_hrc_floor' ) as $mk ) {
+				if ( metadata_exists( 'post', $fid, $mk ) ) continue;
+				update_post_meta( $fid, $mk, '' );
+				$act['meta_backfilled'][] = $mk;
+			}
 			$act['action'] = 'linked';
 		}
 		$actions[] = $act;
@@ -598,6 +605,14 @@ function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
 	$status_in  = isset( $raw['status'] ) ? sanitize_text_field( (string) $raw['status'] ) : '';
 	$status_val = $status_in !== '' ? $status_in : 'Available';
 	update_post_meta( $post_id, '_hrc_status', $status_val );
+
+	// HRC listing controller filters flats by presence of _hrc_price / _hrc_floor.
+	// Guarantee both keys exist even when the meta map didn't resolve them.
+	foreach ( array( '_hrc_price', '_hrc_floor' ) as $mk ) {
+		if ( ! metadata_exists( 'post', $post_id, $mk ) ) {
+			update_post_meta( $post_id, $mk, '' );
+		}
+	}
 
 	if ( 'none' === $ribbon ) {
 		delete_post_meta( $post_id, HRC_FLAT_RIBBON_META );
