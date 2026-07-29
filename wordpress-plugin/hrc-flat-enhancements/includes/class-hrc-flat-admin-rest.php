@@ -276,7 +276,7 @@ function hrc_flat_get_meta_map( $force = false ) {
 	$key_price   = $find( array( 'price', '_price', 'hrc_flat_price', '_hrc_flat_price' ), 0 );
 	$key_floor   = $find( array( 'floor', '_floor', 'hrc_flat_floor', '_hrc_flat_floor' ), 0 );
 	$key_flatno  = $find( array( 'flat_number', '_flat_number', 'hrc_flat_number', '_hrc_flat_number' ) );
-	$key_project = $find( array( 'project', 'project_id', '_project_id', 'hrc_flat_project', '_hrc_flat_project' ) );
+	$key_project = $find( array( 'project', 'project_id', '_project_id', '_hrc_project_id', 'hrc_flat_project', '_hrc_flat_project' ) );
 
 	if ( ! $key_bhk || ! $key_size || ! $key_tower || ! $key_facing ) {
 		return new WP_Error(
