@@ -47,6 +47,7 @@ import {
 import { HrcApiError } from "@/services/api";
 import { formatArea, formatPriceInr } from "@/lib/format";
 import { imageSrc } from "@/lib/image";
+import { getFlatImage, FLAT_FALLBACK_IMAGE } from "@/lib/flat-imagery";
 import { decodeEntities } from "@/lib/html";
 import { cn } from "@/lib/utils";
 import type { Flat, Project } from "@/types/hrc";
@@ -693,10 +694,18 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
   };
   const { open: openEnquiry } = useEnquiry();
 
-  const imageUrl = imageSrc(
-    (flat.featured_image as string | false | undefined) ||
-      (project.featured_image as string | false | undefined) ||
-      null,
+  const imageUrl = getFlatImage(
+    flat.featured_image as string | false | null | undefined,
+    {
+      id: flat.id,
+      title: rec.title ?? null,
+      facing: flat.facing ?? null,
+      bhk: flat.bhk ?? null,
+      sizeSqft: rec.size_sqft !== undefined && rec.size_sqft !== null && rec.size_sqft !== ""
+        ? Number(rec.size_sqft)
+        : null,
+      ribbon: (flat.ribbon as string | undefined) ?? null,
+    },
   );
 
   const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
@@ -759,8 +768,14 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
           src={imageUrl}
           alt={title || `${flat.bhk || "Flat"} — ${project.title}`}
           loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (el.src !== FLAT_FALLBACK_IMAGE) el.src = FLAT_FALLBACK_IMAGE;
+          }}
+          className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]"
         />
+        {/* subtle top-gradient for ribbon legibility */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" />
         {ribbonLabel ? (
           <div className="absolute left-0 top-3 z-10">
             <div className="relative flex items-center gap-1.5 bg-[color:var(--navy)] py-1.5 pl-3 pr-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)] shadow-[0_6px_20px_-8px_rgba(10,31,68,.5)]">
