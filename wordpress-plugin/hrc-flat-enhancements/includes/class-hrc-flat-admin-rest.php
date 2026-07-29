@@ -606,6 +606,14 @@ function hrc_flat_apply_meta( $post_id, array $raw, $project_id, array $map ) {
 	$status_val = $status_in !== '' ? $status_in : 'Available';
 	update_post_meta( $post_id, '_hrc_status', $status_val );
 
+	// HRC listing controller filters flats by presence of _hrc_price / _hrc_floor.
+	// Guarantee both keys exist even when the meta map didn't resolve them.
+	foreach ( array( '_hrc_price', '_hrc_floor' ) as $mk ) {
+		if ( ! metadata_exists( 'post', $post_id, $mk ) ) {
+			update_post_meta( $post_id, $mk, '' );
+		}
+	}
+
 	if ( 'none' === $ribbon ) {
 		delete_post_meta( $post_id, HRC_FLAT_RIBBON_META );
 	} else {
