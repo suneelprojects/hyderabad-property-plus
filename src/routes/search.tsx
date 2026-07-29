@@ -247,7 +247,7 @@ function SearchPage() {
 
         {hasFilters ? (
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[color:var(--border)] pt-4">
-            <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--label)]">
               Active:
             </span>
             {search.location ? (

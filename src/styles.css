@@ -19,6 +19,10 @@
   --color-ivory: var(--ivory);
   --color-ink: var(--ink);
   --color-mist: var(--mist);
+  --color-label: var(--label);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-subtle: var(--border-subtle);
+
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -80,6 +84,11 @@
   --ink: #101828;
   --mist: #e9eef7;
 
+  /* Semantic text tokens — tuned for WCAG AA on white + ivory. */
+  --text-secondary: #3a4560; /* body/supporting copy — ~9.3:1 on white */
+  --label: #334155;          /* uppercase labels/metadata — ~10.4:1 on white */
+  --border-subtle: #d7dde8;
+
   /* Radius / shadow */
   --radius: 14px;
   --shadow-soft: 0 10px 40px rgba(10, 31, 68, 0.08);
@@ -105,7 +114,7 @@
   --secondary-foreground: var(--navy);
 
   --muted: var(--mist);
-  --muted-foreground: #5b6478;
+  --muted-foreground: #475062; /* darkened from #5b6478 → ~7.3:1 on white */
 
   --accent: var(--gold);
   --accent-foreground: var(--navy);
@@ -116,6 +125,7 @@
   --border: #e5e7eb;
   --input: #e5e7eb;
   --ring: var(--gold);
+
 }
 
 .dark {
