@@ -707,7 +707,15 @@ const RIBBON_LABELS: Record<string, string> = {
   hot_deal: "Hot Deal",
 };
 
-function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
+function FlatCard({
+  flat,
+  project,
+  image,
+}: {
+  flat: Flat;
+  project: Project;
+  image: ResolvedFlatImage;
+}) {
   const rec = flat as unknown as {
     title?: string;
     flat_number?: string | number;
@@ -718,19 +726,8 @@ function FlatCard({ flat, project }: { flat: Flat; project: Project }) {
   };
   const { open: openEnquiry } = useEnquiry();
 
-  const imageUrl = getFlatImage(
-    flat.featured_image as string | false | null | undefined,
-    {
-      id: flat.id,
-      title: rec.title ?? null,
-      facing: flat.facing ?? null,
-      bhk: flat.bhk ?? null,
-      sizeSqft: rec.size_sqft !== undefined && rec.size_sqft !== null && rec.size_sqft !== ""
-        ? Number(rec.size_sqft)
-        : null,
-      ribbon: (flat.ribbon as string | undefined) ?? null,
-    },
-  );
+  const imageUrl = image.url;
+  const isCurated = image.isCurated;
 
   const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
   const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
