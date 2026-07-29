@@ -19,6 +19,10 @@
   --color-ivory: var(--ivory);
   --color-ink: var(--ink);
   --color-mist: var(--mist);
+  --color-label: var(--label);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-subtle: var(--border-subtle);
+
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
