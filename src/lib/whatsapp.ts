@@ -7,6 +7,9 @@
 
 export const DEFAULT_SALES_WHATSAPP = "919000000000"; // fallback if /meta has none
 
+/** Single sales WhatsApp number used by every click-to-chat CTA. */
+export const SALES_WHATSAPP_NUMBER = "918247766377";
+
 /**
  * Normalize a phone number to E.164-digits for wa.me (no `+`, no spaces).
  * Accepts inputs like "+91 90000 00000", "090000-00000", "9000000000".
