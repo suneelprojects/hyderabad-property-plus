@@ -767,6 +767,8 @@ function FlatCard({
         ? formatArea(flat.carpet_area || flat.built_up_area)
         : null;
 
+  const sizeOverlay = sizeDisplay || "Size on Request";
+
   const contextBits = [
     flat.bhk,
     rec.tower ? `Tower ${rec.tower}` : null,
@@ -799,8 +801,8 @@ function FlatCard({
         />
         {/* subtle top-gradient for ribbon legibility */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" />
-        {/* soft bottom-gradient for premium transition into content */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
+        {/* strong bottom-gradient for price/size legibility */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
         {ribbonLabel ? (
           <div className="absolute left-0 top-3 z-10">
             <div className="relative flex items-center gap-1.5 bg-[color:var(--navy)] py-1.5 pl-3 pr-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)] shadow-[0_6px_20px_-8px_rgba(10,31,68,.5)]">
@@ -810,8 +812,17 @@ function FlatCard({
             </div>
           </div>
         ) : null}
+        {/* price + size overlay */}
+        <div className="pointer-events-none absolute bottom-2.5 left-3 z-10 max-w-[52%]">
+          <div className="font-serif text-lg font-bold leading-tight text-white [text-shadow:0_2px_10px_rgba(0,0,0,.55)] sm:text-xl">
+            {priceDisplay}
+          </div>
+          <div className="mt-0.5 text-[11px] font-medium tracking-wide text-white/80 [text-shadow:0_1px_6px_rgba(0,0,0,.5)] sm:text-xs">
+            {sizeOverlay}
+          </div>
+        </div>
         {isCurated ? (
-          <div className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-full bg-black/40 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm ring-1 ring-white/15">
+          <div className="pointer-events-none absolute bottom-2 right-2 z-10 max-w-[46%] truncate rounded-full bg-black/45 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm ring-1 ring-white/15">
             Representative Image
           </div>
         ) : null}
@@ -822,21 +833,12 @@ function FlatCard({
         </h4>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
           {flat.bhk ? <Fact label="BHK" value={flat.bhk} /> : null}
-          {sizeDisplay ? <Fact label="Size" value={sizeDisplay} /> : null}
           {rec.tower ? <Fact label="Tower" value={String(rec.tower)} /> : null}
           {hasValidFloor ? <Fact label="Floor" value={String(floorNum)} /> : null}
           {flat.facing ? <Fact label="Facing" value={flat.facing} /> : null}
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
-        <div className="mt-3 flex items-center justify-between border-t border-[color:var(--mist)] pt-3">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
-              Price
-            </div>
-            <div className="font-serif text-base font-semibold text-[color:var(--gold)]">
-              {priceDisplay}
-            </div>
-          </div>
+        <div className="mt-3 flex items-center justify-end border-t border-[color:var(--mist)] pt-3">
           <button
             type="button"
             onClick={handleEnquire}
