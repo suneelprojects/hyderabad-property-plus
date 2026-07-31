@@ -705,14 +705,35 @@ function FilterField({
   );
 }
 
-const RIBBON_LABELS: Record<string, string> = {
-  featured: "Featured",
-  premium: "Premium",
-  best_value: "Best Value",
-  limited_availability: "Limited Availability",
-  ready_to_move: "Ready to Move",
-  hot_deal: "Hot Deal",
+type RibbonStyle = { label: string; className: string; dot: string };
+
+const NAVY_RIBBON = "bg-[color:var(--navy)] text-[color:var(--gold)]";
+const DARK_GOLD_RIBBON = "bg-[#3d2f12] text-[color:var(--gold)]";
+const MUTED_RIBBON = "bg-[#5b2733] text-white";
+
+const RIBBON_STYLES: Record<string, RibbonStyle> = {
+  for_sale: { label: "For Sale", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  available: { label: "For Sale", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  featured: { label: "Featured", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  premium: { label: "Premium", className: DARK_GOLD_RIBBON, dot: "bg-[color:var(--gold)]" },
+  best_value: { label: "Best Value", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  limited_availability: {
+    label: "Limited",
+    className: DARK_GOLD_RIBBON,
+    dot: "bg-[color:var(--gold)]",
+  },
+  ready_to_move: { label: "Ready to Move", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  hot_deal: { label: "Hot Deal", className: DARK_GOLD_RIBBON, dot: "bg-[color:var(--gold)]" },
+  sold_out: { label: "Sold Out", className: MUTED_RIBBON, dot: "bg-white/80" },
+  sold: { label: "Sold Out", className: MUTED_RIBBON, dot: "bg-white/80" },
 };
+
+function resolveRibbon(value?: string | null): RibbonStyle | null {
+  const key = (value || "none").toString().trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (!key || key === "none") return null;
+  return RIBBON_STYLES[key] ?? null;
+}
+
 
 function FlatCard({
   flat,
