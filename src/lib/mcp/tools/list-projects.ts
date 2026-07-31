@@ -21,7 +21,7 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (input) => {
-    const projects = await getProjects({ per_page: 20, ...input });
+    const projects = await getProjects({ ...input, per_page: input.per_page ?? 20 });
     const items = projects.map((p) => ({
       slug: p.slug,
       title: p.title,
