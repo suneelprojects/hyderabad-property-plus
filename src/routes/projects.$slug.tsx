@@ -757,8 +757,8 @@ function FlatCard({
   const imageUrl = image.url;
   const isCurated = image.isCurated;
 
-  const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
-  const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
+  const ribbon = resolveRibbon(flat.ribbon ?? rec.status);
+
 
   const title = rec.title ? decodeEntities(String(rec.title)) : "";
 
