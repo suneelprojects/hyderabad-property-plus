@@ -53,6 +53,11 @@ import {
   type ResolvedFlatImage,
 } from "@/lib/flat-imagery";
 import { decodeEntities } from "@/lib/html";
+import {
+  buildFlatWaMessage,
+  buildWaLink,
+  SALES_WHATSAPP_NUMBER,
+} from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import type { Flat, Project } from "@/types/hrc";
 
