@@ -833,21 +833,12 @@ function FlatCard({
         </h4>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
           {flat.bhk ? <Fact label="BHK" value={flat.bhk} /> : null}
-          {sizeDisplay ? <Fact label="Size" value={sizeDisplay} /> : null}
           {rec.tower ? <Fact label="Tower" value={String(rec.tower)} /> : null}
           {hasValidFloor ? <Fact label="Floor" value={String(floorNum)} /> : null}
           {flat.facing ? <Fact label="Facing" value={flat.facing} /> : null}
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
-        <div className="mt-3 flex items-center justify-between border-t border-[color:var(--mist)] pt-3">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--label)]">
-              Price
-            </div>
-            <div className="font-serif text-base font-semibold text-[color:var(--gold)]">
-              {priceDisplay}
-            </div>
-          </div>
+        <div className="mt-3 flex items-center justify-end border-t border-[color:var(--mist)] pt-3">
           <button
             type="button"
             onClick={handleEnquire}
