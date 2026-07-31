@@ -7,6 +7,9 @@
 
 export const DEFAULT_SALES_WHATSAPP = "919000000000"; // fallback if /meta has none
 
+/** Single sales WhatsApp number used by every click-to-chat CTA. */
+export const SALES_WHATSAPP_NUMBER = "918247766377";
+
 /**
  * Normalize a phone number to E.164-digits for wa.me (no `+`, no spaces).
  * Accepts inputs like "+91 90000 00000", "090000-00000", "9000000000".
@@ -44,3 +47,39 @@ export const WA_MESSAGES = {
   location: (name: string) =>
     `Hi,\n\nI'm looking for properties in ${name}. Can someone assist me?`,
 } as const;
+
+/**
+ * Build the flat-level enquiry message. Only fields with valid values are
+ * included — no `undefined`/`null`/empty lines ever reach the chat.
+ */
+export function buildFlatWaMessage(args: {
+  projectName: string;
+  flatTitle?: string | null;
+  bhk?: string | null;
+  tower?: string | null;
+  floor?: string | null;
+  size?: string | null;
+  price?: string | null;
+  flatNumber?: string | null;
+}): string {
+  const subject = args.flatTitle?.trim() || args.bhk?.trim() || "a unit";
+  const details: string[] = [];
+  const push = (label: string, value?: string | null) => {
+    const v = value == null ? "" : String(value).trim();
+    if (v) details.push(`- ${label}: ${v}`);
+  };
+  push("BHK", args.bhk);
+  push("Tower", args.tower);
+  push("Floor", args.floor);
+  push("Size", args.size);
+  push("Price", args.price);
+  push("Flat Number", args.flatNumber);
+
+  return [
+    `Hello, I am interested in ${subject} at ${args.projectName}.`,
+    details.length ? `\nFlat details:\n${details.join("\n")}` : "",
+    `\nPlease share the current availability, complete details and help me schedule a visit.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
