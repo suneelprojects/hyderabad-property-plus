@@ -782,9 +782,24 @@ function FlatCard({
     openEnquiry({
       project: project.title,
       projectId: project.id,
+      title: "Check Availability",
       subtitle: `${project.title}${title ? " — " + title : ` — Flat #${flat.id}`}${contextBits.length ? " · " + contextBits.join(" · ") : ""}`,
     });
   };
+
+  const waHref = buildWaLink({
+    phone: SALES_WHATSAPP_NUMBER,
+    text: buildFlatWaMessage({
+      projectName: project.title,
+      flatTitle: title || null,
+      bhk: flat.bhk || null,
+      tower: rec.tower ? String(rec.tower) : null,
+      floor: hasValidFloor ? String(floorNum) : null,
+      size: sizeDisplay,
+      price: hasPrice ? formatPriceInr(priceNum) : null,
+      flatNumber,
+    }),
+  });
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-[color:var(--mist)] bg-white shadow-[0_10px_40px_-24px_rgba(10,31,68,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-30px_rgba(10,31,68,.35)]">
