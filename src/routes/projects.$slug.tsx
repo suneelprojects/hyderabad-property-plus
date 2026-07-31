@@ -705,14 +705,35 @@ function FilterField({
   );
 }
 
-const RIBBON_LABELS: Record<string, string> = {
-  featured: "Featured",
-  premium: "Premium",
-  best_value: "Best Value",
-  limited_availability: "Limited Availability",
-  ready_to_move: "Ready to Move",
-  hot_deal: "Hot Deal",
+type RibbonStyle = { label: string; className: string; dot: string };
+
+const NAVY_RIBBON = "bg-[color:var(--navy)] text-[color:var(--gold)]";
+const DARK_GOLD_RIBBON = "bg-[#3d2f12] text-[color:var(--gold)]";
+const MUTED_RIBBON = "bg-[#5b2733] text-white";
+
+const RIBBON_STYLES: Record<string, RibbonStyle> = {
+  for_sale: { label: "For Sale", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  available: { label: "For Sale", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  featured: { label: "Featured", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  premium: { label: "Premium", className: DARK_GOLD_RIBBON, dot: "bg-[color:var(--gold)]" },
+  best_value: { label: "Best Value", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  limited_availability: {
+    label: "Limited",
+    className: DARK_GOLD_RIBBON,
+    dot: "bg-[color:var(--gold)]",
+  },
+  ready_to_move: { label: "Ready to Move", className: NAVY_RIBBON, dot: "bg-[color:var(--gold)]" },
+  hot_deal: { label: "Hot Deal", className: DARK_GOLD_RIBBON, dot: "bg-[color:var(--gold)]" },
+  sold_out: { label: "Sold Out", className: MUTED_RIBBON, dot: "bg-white/80" },
+  sold: { label: "Sold Out", className: MUTED_RIBBON, dot: "bg-white/80" },
 };
+
+function resolveRibbon(value?: string | null): RibbonStyle | null {
+  const key = (value || "none").toString().trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (!key || key === "none") return null;
+  return RIBBON_STYLES[key] ?? null;
+}
+
 
 function FlatCard({
   flat,
@@ -736,8 +757,8 @@ function FlatCard({
   const imageUrl = image.url;
   const isCurated = image.isCurated;
 
-  const ribbonKey = (flat.ribbon || "none").toString().toLowerCase();
-  const ribbonLabel = ribbonKey !== "none" ? RIBBON_LABELS[ribbonKey] ?? null : null;
+  const ribbon = resolveRibbon(flat.ribbon ?? rec.status);
+
 
   const title = rec.title ? decodeEntities(String(rec.title)) : "";
 
@@ -823,15 +844,20 @@ function FlatCard({
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" />
         {/* strong bottom-gradient for price/size legibility */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
-        {ribbonLabel ? (
-          <div className="absolute left-0 top-3 z-10">
-            <div className="relative flex items-center gap-1.5 bg-[color:var(--navy)] py-1.5 pl-3 pr-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--gold)] shadow-[0_6px_20px_-8px_rgba(10,31,68,.5)]">
-              <span className="h-1 w-1 rounded-full bg-[color:var(--gold)]" />
-              {ribbonLabel}
-              <span className="absolute -right-2 top-0 h-full w-2 [clip-path:polygon(0_0,0_100%,100%_50%)] bg-[color:var(--navy)]" />
+        {ribbon ? (
+          <div className="absolute left-0 top-2 z-10 max-w-[60%]">
+            <div
+              className={`relative inline-flex items-center gap-1 py-[2px] pl-1.5 pr-2 text-[9px] font-semibold leading-none tracking-[0.08em] shadow-[0_4px_12px_-6px_rgba(10,31,68,.5)] sm:text-[10px] ${ribbon.className}`}
+            >
+              <span className={`h-[3px] w-[3px] shrink-0 rounded-full ${ribbon.dot}`} />
+              <span className="truncate">{ribbon.label}</span>
+              <span
+                className={`absolute -right-[5px] top-0 h-full w-[5px] [clip-path:polygon(0_0,0_100%,100%_50%)] ${ribbon.className}`}
+              />
             </div>
           </div>
         ) : null}
+
         {/* price + size overlay */}
         <div className="pointer-events-none absolute bottom-2.5 left-3 z-10 max-w-[52%]">
           <div className="font-serif text-lg font-bold leading-tight text-white [text-shadow:0_2px_10px_rgba(0,0,0,.55)] sm:text-xl">
