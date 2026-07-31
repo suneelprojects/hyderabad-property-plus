@@ -767,6 +767,8 @@ function FlatCard({
         ? formatArea(flat.carpet_area || flat.built_up_area)
         : null;
 
+  const sizeOverlay = sizeDisplay || "Size on Request";
+
   const contextBits = [
     flat.bhk,
     rec.tower ? `Tower ${rec.tower}` : null,
