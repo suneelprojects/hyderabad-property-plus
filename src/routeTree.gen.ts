@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,11 +19,19 @@ import { Route as LocationsIndexRouteImport } from './routes/locations.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as LocationsSlugRouteImport } from './routes/locations.$slug'
 import { Route as LocationSlugRouteImport } from './routes/location.$slug'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ApiPublicEnquiryRouteImport } from './routes/api/public/enquiry'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -65,34 +74,60 @@ const LocationSlugRoute = LocationSlugRouteImport.update({
   path: '/location/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicEnquiryRoute = ApiPublicEnquiryRouteImport.update({
   id: '/api/public/enquiry',
   path: '/api/public/enquiry',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/search': typeof SearchRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/search': typeof SearchRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations': typeof LocationsIndexRoute
   '/projects': typeof ProjectsIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRoutesById {
@@ -100,12 +135,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/mcp': typeof McpRoute
   '/search': typeof SearchRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/location/$slug': typeof LocationSlugRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
   '/locations/': typeof LocationsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/enquiry': typeof ApiPublicEnquiryRoute
 }
 export interface FileRouteTypes {
@@ -114,36 +153,48 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/mcp'
     | '/search'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations/'
     | '/projects/'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/enquiry'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
+    | '/mcp'
     | '/search'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations'
     | '/projects'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/enquiry'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/contact'
+    | '/mcp'
     | '/search'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/location/$slug'
     | '/locations/$slug'
     | '/projects/$slug'
     | '/locations/'
     | '/projects/'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/enquiry'
   fileRoutesById: FileRoutesById
 }
@@ -151,12 +202,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  McpRoute: typeof McpRoute
   SearchRoute: typeof SearchRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LocationSlugRoute: typeof LocationSlugRoute
   LocationsSlugRoute: typeof LocationsSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   LocationsIndexRoute: typeof LocationsIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicEnquiryRoute: typeof ApiPublicEnquiryRoute
 }
 
@@ -167,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -225,11 +287,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/enquiry': {
       id: '/api/public/enquiry'
       path: '/api/public/enquiry'
       fullPath: '/api/public/enquiry'
       preLoaderRoute: typeof ApiPublicEnquiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -239,12 +322,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  McpRoute: McpRoute,
   SearchRoute: SearchRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LocationSlugRoute: LocationSlugRoute,
   LocationsSlugRoute: LocationsSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
   LocationsIndexRoute: LocationsIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicEnquiryRoute: ApiPublicEnquiryRoute,
 }
 export const routeTree = rootRouteImport
