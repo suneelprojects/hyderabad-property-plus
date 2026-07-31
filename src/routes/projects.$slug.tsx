@@ -813,7 +813,7 @@ function FlatCard({
           </div>
         ) : null}
         {/* price + size overlay */}
-        <div className="pointer-events-none absolute bottom-2.5 left-3 z-10 max-w-[65%]">
+        <div className="pointer-events-none absolute bottom-2.5 left-3 z-10 max-w-[52%]">
           <div className="font-serif text-lg font-bold leading-tight text-white [text-shadow:0_2px_10px_rgba(0,0,0,.55)] sm:text-xl">
             {priceDisplay}
           </div>
@@ -822,7 +822,7 @@ function FlatCard({
           </div>
         </div>
         {isCurated ? (
-          <div className="pointer-events-none absolute bottom-2 right-2 z-10 max-w-[32%] truncate rounded-full bg-black/45 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm ring-1 ring-white/15">
+          <div className="pointer-events-none absolute bottom-2 right-2 z-10 max-w-[46%] truncate rounded-full bg-black/45 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm ring-1 ring-white/15">
             Representative Image
           </div>
         ) : null}
