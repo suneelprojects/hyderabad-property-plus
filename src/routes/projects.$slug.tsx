@@ -878,10 +878,13 @@ function FlatCard({
           {title || flat.bhk || "Unit"}
         </h4>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-          {flat.bhk ? <Fact label="BHK" value={flat.bhk} /> : null}
-          {rec.tower ? <Fact label="Tower" value={String(rec.tower)} /> : null}
-          {hasValidFloor ? <Fact label="Floor" value={String(floorNum)} /> : null}
-          {flat.facing ? <Fact label="Facing" value={flat.facing} /> : null}
+          <Fact label="BHK" value={flat.bhk || "—"} />
+          <Fact label="Tower" value={rec.tower ? String(rec.tower) : "—"} />
+          <Fact label="Facing" value={flat.facing || "—"} />
+          <Fact
+            label="Floor"
+            value={hasValidFloor ? floorBand(floorNum) : "—"}
+          />
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
         <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[color:var(--mist)] pt-3 min-[380px]:grid-cols-2">
