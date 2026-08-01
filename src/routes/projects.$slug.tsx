@@ -734,6 +734,13 @@ function resolveRibbon(value?: string | null): RibbonStyle | null {
   return RIBBON_STYLES[key] ?? null;
 }
 
+/** Human-friendly floor band shown on flat cards. */
+function floorBand(floor: number): "Lower" | "Middle" | "Higher" {
+  if (floor <= 6) return "Lower";
+  if (floor <= 14) return "Middle";
+  return "Higher";
+}
+
 
 function FlatCard({
   flat,
