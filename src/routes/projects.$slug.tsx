@@ -734,6 +734,13 @@ function resolveRibbon(value?: string | null): RibbonStyle | null {
   return RIBBON_STYLES[key] ?? null;
 }
 
+/** Human-friendly floor band shown on flat cards. */
+function floorBand(floor: number): "Lower" | "Middle" | "Higher" {
+  if (floor <= 6) return "Lower";
+  if (floor <= 14) return "Middle";
+  return "Higher";
+}
+
 
 function FlatCard({
   flat,
@@ -845,14 +852,14 @@ function FlatCard({
         {/* strong bottom-gradient for price/size legibility */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
         {ribbon ? (
-          <div className="absolute left-0 top-2 z-10 max-w-[60%]">
+          <div className="absolute right-0 top-2 z-10 max-w-[60%]">
             <div
-              className={`relative inline-flex items-center gap-1 py-[2px] pl-1.5 pr-2 text-[9px] font-semibold leading-none tracking-[0.08em] shadow-[0_4px_12px_-6px_rgba(10,31,68,.5)] sm:text-[10px] ${ribbon.className}`}
+              className={`relative inline-flex items-center gap-1 py-[2px] pl-2 pr-1.5 text-[9px] font-semibold leading-none tracking-[0.08em] shadow-[0_4px_12px_-6px_rgba(10,31,68,.5)] sm:text-[10px] ${ribbon.className}`}
             >
               <span className={`h-[3px] w-[3px] shrink-0 rounded-full ${ribbon.dot}`} />
               <span className="truncate">{ribbon.label}</span>
               <span
-                className={`absolute -right-[5px] top-0 h-full w-[5px] [clip-path:polygon(0_0,0_100%,100%_50%)] ${ribbon.className}`}
+                className={`absolute -left-[5px] top-0 h-full w-[5px] [clip-path:polygon(100%_0,100%_100%,0_50%)] ${ribbon.className}`}
               />
             </div>
           </div>
@@ -878,10 +885,13 @@ function FlatCard({
           {title || flat.bhk || "Unit"}
         </h4>
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-          {flat.bhk ? <Fact label="BHK" value={flat.bhk} /> : null}
-          {rec.tower ? <Fact label="Tower" value={String(rec.tower)} /> : null}
-          {hasValidFloor ? <Fact label="Floor" value={String(floorNum)} /> : null}
-          {flat.facing ? <Fact label="Facing" value={flat.facing} /> : null}
+          <Fact label="BHK" value={flat.bhk || "—"} />
+          <Fact label="Tower" value={rec.tower ? String(rec.tower) : "—"} />
+          <Fact label="Facing" value={flat.facing || "—"} />
+          <Fact
+            label="Floor"
+            value={hasValidFloor ? floorBand(floorNum) : "—"}
+          />
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
         <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[color:var(--mist)] pt-3 min-[380px]:grid-cols-2">
