@@ -890,8 +890,9 @@ function FlatCard({
           <Fact label="Facing" value={flat.facing || "—"} />
           <Fact
             label="Floor"
-            value={hasValidFloor ? floorBand(floorNum) : "—"}
+            value={hasValidFloor ? floorBand(floorNum) : "Lower-Middle-Higher"}
           />
+
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
         <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[color:var(--mist)] pt-3 min-[380px]:grid-cols-2">
