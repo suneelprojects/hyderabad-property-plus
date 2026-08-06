@@ -151,7 +151,7 @@ function hrc_flat_augment( array $item ) {
 			$item['featured_image'] = false;
 		}
 	}
-	return $item;
+	return apply_filters( 'hrc_flat_augment_item', $item );
 }
 
 add_filter( 'rest_post_dispatch', function ( $response, $server, $request ) {
