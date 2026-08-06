@@ -794,13 +794,9 @@ function FlatCard({
 
   const title = rec.title ? decodeEntities(String(rec.title)) : "";
 
-  const floorNum = Number(rec.floor);
-  const hasValidFloor =
-    rec.floor !== null &&
-    rec.floor !== undefined &&
-    rec.floor !== "" &&
-    Number.isFinite(floorNum) &&
-    floorNum > 0;
+  const floorLabel = resolveFloorBand(rec.floor);
+  const hasValidFloor = floorLabel !== null;
+
 
   const flatNumber =
     rec.flat_number !== null &&
