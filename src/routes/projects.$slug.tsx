@@ -752,6 +752,20 @@ function floorBand(floor: number): "Lower" | "Middle" | "Higher" {
   return "Higher";
 }
 
+/** Accepts either the new band string (Lower/Middle/Higher) or a legacy number. */
+function resolveFloorBand(value: unknown): "Lower" | "Middle" | "Higher" | null {
+  if (value === null || value === undefined || value === "") return null;
+  const raw = String(value).trim();
+  const match = (["Lower", "Middle", "Higher"] as const).find(
+    (b) => b.toLowerCase() === raw.toLowerCase(),
+  );
+  if (match) return match;
+  const n = Number(raw);
+  if (Number.isFinite(n) && n > 0) return floorBand(n);
+  return null;
+}
+
+
 
 function FlatCard({
   flat,
