@@ -15,6 +15,7 @@ import {
   useMeta,
 } from "@/hooks/queries";
 import type { Location } from "@/types/hrc";
+import { SALES_PHONE_TEL, SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 const FALLBACK_BANNER =
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80";
@@ -124,15 +125,13 @@ function LocationDetailPage() {
     location?.project_count ??
     0;
 
-  const waNumber = (meta?.whatsapp || meta?.phone || "").replace(/\D/g, "");
+  const waNumber = SALES_WHATSAPP_NUMBER;
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
         `Hi, I am interested in ${displayTitle}`,
       )}`
     : undefined;
-  const telHref = meta?.phone
-    ? `tel:${meta.phone.replace(/\s+/g, "")}`
-    : undefined;
+  const telHref = SALES_PHONE_TEL;
 
   return (
     <>
@@ -283,7 +282,7 @@ function LocationDetailPage() {
                 <ProjectRow
                   key={p.id}
                   project={p}
-                  whatsapp={meta?.whatsapp || meta?.phone}
+                  whatsapp={SALES_WHATSAPP_NUMBER}
                 />
               ))}
             </div>

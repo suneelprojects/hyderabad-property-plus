@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { useMeta } from "@/hooks/queries";
+import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
 
 /**
  * ContactCta — the closing "Let's find your address in Hyderabad" section.
@@ -18,7 +19,7 @@ export function ContactCta() {
   const address =
     meta?.address ?? "Financial District, Hyderabad, Telangana 500032";
   const contactEmail = meta?.email ?? "contact@hyderabadrealtychoices.com";
-  const contactPhone = meta?.phone ?? "+91 90000 00000";
+  const contactPhone = SALES_PHONE_DISPLAY;
 
   return (
     <Section id="contact" alt>
@@ -37,7 +38,7 @@ export function ContactCta() {
           <ul className="mt-2 flex flex-col gap-4 text-[15px]">
             <li>
               <a
-                href={`tel:${contactPhone.replace(/\s+/g, "")}`}
+                href={SALES_PHONE_TEL}
                 className="flex items-center gap-3 text-[color:var(--navy)] hover:text-[color:var(--gold-2)]"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--gold)]/15 text-[color:var(--gold)]">

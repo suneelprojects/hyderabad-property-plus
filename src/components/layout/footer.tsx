@@ -13,6 +13,7 @@ import {
 
 import { Container } from "./container";
 import { useLocations, useMeta, useProjects } from "@/hooks/queries";
+import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
 
 const QUICK_LINKS = [
   { label: "Home", to: "/" },
@@ -141,14 +142,14 @@ export function Footer() {
               Get in Touch
             </h4>
             <ul className="flex flex-col gap-3 text-sm">
-              {meta?.phone ? (
+              {true ? (
                 <li>
                   <a
-                    href={`tel:${meta.phone.replace(/\s+/g, "")}`}
+                    href={SALES_PHONE_TEL}
                     className="flex items-center gap-3 text-white/80 hover:text-[color:var(--gold)]"
                   >
                     <Phone className="h-4 w-4 text-[color:var(--gold)]" />
-                    {meta.phone}
+                    {SALES_PHONE_DISPLAY}
                   </a>
                 </li>
               ) : null}

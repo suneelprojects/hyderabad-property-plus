@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/projects/project-cards";
 import { useMeta, useProjects } from "@/hooks/queries";
+import { SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 /**
  * FeaturedProjects — homepage showcase. Uses the shared compact ProjectCard
@@ -16,7 +17,7 @@ export function FeaturedProjects() {
   const { data, isLoading } = useProjects();
   const { data: meta } = useMeta();
   const items = (data ?? []).slice(0, 6);
-  const whatsapp = meta?.whatsapp || meta?.phone;
+  const whatsapp = SALES_WHATSAPP_NUMBER;
 
   return (
     <Section id="projects" className="bg-[color:var(--ivory)]">

@@ -6,7 +6,7 @@ import { MessageCircle, X } from "lucide-react";
 
 import { useMeta } from "@/hooks/queries";
 import { projectQueryOptions, locationQueryOptions } from "@/hooks/queries/options";
-import { buildWaLink, WA_MESSAGES } from "@/lib/whatsapp";
+import { buildWaLink, WA_MESSAGES, SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 /**
@@ -51,7 +51,7 @@ export function FloatingWhatsApp() {
   }, [projectMatch, locationMatch, project?.title, location?.title]);
 
   // Floating WhatsApp CTA routes to the dedicated sales number regardless of /meta.
-  const FLOATING_WA_NUMBER = "918247766377";
+  const FLOATING_WA_NUMBER = SALES_WHATSAPP_NUMBER;
   const href = buildWaLink({ phone: FLOATING_WA_NUMBER, text: message });
 
   // Tooltip auto-reveal, once per session.

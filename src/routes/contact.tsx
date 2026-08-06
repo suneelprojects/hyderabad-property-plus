@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { useMeta } from "@/hooks/queries";
 import { WhatsAppIcon } from "@/components/projects/project-cards";
+import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY, SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -42,8 +43,8 @@ function ContactPage() {
   const { open } = useEnquiry();
   const { data: meta } = useMeta();
 
-  const phone = meta?.phone || "+91 90000 00000";
-  const whatsapp = meta?.whatsapp || meta?.phone || "";
+  const phone = SALES_PHONE_DISPLAY;
+  const whatsapp = SALES_WHATSAPP_NUMBER;
   const email = meta?.email || "hello@hyderabadrealtychoices.com";
   const address = meta?.address || "Financial District, Hyderabad, Telangana 500032";
   const hours = "Mon – Sat · 9:30 AM – 7:30 PM";
@@ -52,7 +53,7 @@ function ContactPage() {
   const waHref = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent("Hi, I'd like to speak with an advisor.")}`
     : undefined;
-  const telHref = `tel:${phone.replace(/\s+/g, "")}`;
+  const telHref = SALES_PHONE_TEL;
 
   return (
     <>

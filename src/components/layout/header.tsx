@@ -9,6 +9,7 @@ import { MobileNav } from "./mobile-nav";
 import { useMeta } from "@/hooks/queries";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
+import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
 
 interface NavItem {
   label: string;
@@ -135,9 +136,9 @@ export function Header() {
 
           {/* CTA cluster */}
           <div className="flex items-center gap-2">
-            {meta?.phone ? (
+            {true ? (
               <a
-                href={`tel:${meta.phone.replace(/\s+/g, "")}`}
+                href={SALES_PHONE_TEL}
                 className={cn(
                   "hidden items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors md:inline-flex",
                   overHero

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useMeta } from "@/hooks/queries";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
+import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
 
 interface Item {
   label: string;
@@ -102,13 +103,13 @@ export function MobileNav({
             </nav>
 
             <div className="border-t border-[color:var(--border)] p-5">
-              {meta?.phone ? (
+              {true ? (
                 <a
-                  href={`tel:${meta.phone.replace(/\s+/g, "")}`}
+                  href={SALES_PHONE_TEL}
                   className="mb-3 flex items-center gap-3 text-sm font-semibold text-[color:var(--navy)]"
                 >
                   <Phone className="h-4 w-4 text-[color:var(--gold)]" />
-                  {meta.phone}
+                  {SALES_PHONE_DISPLAY}
                 </a>
               ) : null}
               {meta?.email ? (

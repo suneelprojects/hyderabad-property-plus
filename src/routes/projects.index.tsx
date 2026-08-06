@@ -17,6 +17,7 @@ import { EmptyState, ErrorState } from "@/components/ui/empty-state";
 import { ProjectCard, ProjectRow } from "@/components/projects/project-cards";
 import { useLocations, useMeta, useProjects } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
+import { SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 const PER_PAGE = 6;
 
@@ -369,7 +370,7 @@ function ProjectsListingPage() {
             <ProjectRow
               key={p.id}
               project={p}
-              whatsapp={meta?.whatsapp || meta?.phone}
+              whatsapp={SALES_WHATSAPP_NUMBER}
             />
           ))}
         </div>
