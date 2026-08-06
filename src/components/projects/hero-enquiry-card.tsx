@@ -178,7 +178,7 @@ export function HeroEnquiryCard({ project }: { project: Project }) {
   }, [projects, project]);
 
   return (
-    <div className="w-full max-w-full rounded-[var(--radius)] border border-white/25 bg-white/95 p-5 text-left shadow-[0_24px_70px_rgba(10,31,68,0.35)] backdrop-blur-md sm:p-6 lg:max-w-[420px]">
+    <div className="w-full max-w-full rounded-[var(--radius)] border border-white/25 bg-white/95 p-5 text-left shadow-[0_24px_70px_rgba(10,31,68,0.35)] backdrop-blur-md text-[color:var(--navy)] sm:p-6 lg:max-w-[420px]">
       <h2 className="font-serif text-[22px] font-semibold leading-tight text-[color:var(--navy)]">
         Interested in this project?
       </h2>
@@ -237,7 +237,7 @@ export function HeroEnquiryCard({ project }: { project: Project }) {
                 aria-expanded={pickerOpen}
                 aria-invalid={!!errors.project}
                 className={cn(
-                  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-left text-sm",
+                  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-left text-sm text-[color:var(--navy)]",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)] focus-visible:ring-offset-2",
                   !values.project && "text-muted-foreground",
                 )}
