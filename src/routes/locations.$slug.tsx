@@ -282,7 +282,7 @@ function LocationDetailPage() {
                 <ProjectRow
                   key={p.id}
                   project={p}
-                  whatsapp={meta?.whatsapp || meta?.phone}
+                  whatsapp={SALES_WHATSAPP_NUMBER}
                 />
               ))}
             </div>

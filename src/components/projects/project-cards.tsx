@@ -75,8 +75,9 @@ export function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-function waLink(project: Project, whatsapp?: string): string | undefined {
-  const waNumber = (whatsapp ?? "").replace(/\D/g, "") || SALES_WHATSAPP_NUMBER;
+function waLink(project: Project, _whatsapp?: string): string | undefined {
+  // Single company WhatsApp number for every listing CTA.
+  const waNumber = SALES_WHATSAPP_NUMBER;
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(
     `Hi, I am interested in ${projectTitle(project)}. Please share details.`,
   )}`;
