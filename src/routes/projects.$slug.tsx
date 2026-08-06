@@ -59,6 +59,8 @@ import {
   SALES_WHATSAPP_NUMBER,
 } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { HeroEnquiryCard } from "@/components/projects/hero-enquiry-card";
+
 import type { Flat, Project } from "@/types/hrc";
 
 export const Route = createFileRoute("/projects/$slug")({
