@@ -826,7 +826,7 @@ function FlatCard({
   const contextBits = [
     flat.bhk,
     rec.tower ? `Tower ${rec.tower}` : null,
-    hasValidFloor ? `Floor ${floorNum}` : null,
+    floorLabel ? `${floorLabel} floor` : null,
     flat.facing ? `${flat.facing} facing` : null,
     flatNumber ? `Flat ${flatNumber}` : null,
     hasPrice ? formatPriceInr(priceNum) : null,
@@ -848,7 +848,7 @@ function FlatCard({
       flatTitle: title || null,
       bhk: flat.bhk || null,
       tower: rec.tower ? String(rec.tower) : null,
-      floor: hasValidFloor ? String(floorNum) : null,
+      floor: floorLabel,
       size: sizeDisplay,
       price: hasPrice ? formatPriceInr(priceNum) : null,
       flatNumber,
@@ -911,7 +911,7 @@ function FlatCard({
           <Fact label="Facing" value={flat.facing || "—"} />
           <Fact
             label="Floor"
-            value={hasValidFloor ? floorBand(floorNum) : "Lower-Middle-Higher"}
+            value={floorLabel ?? "Lower-Middle-Higher"}
           />
 
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
