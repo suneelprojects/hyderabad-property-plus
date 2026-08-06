@@ -10,13 +10,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Primary notification recipient for enquiry / contact form leads.
+if ( ! defined( 'HRC_ADMIN_NOTIFY_EMAIL' ) ) {
+	define( 'HRC_ADMIN_NOTIFY_EMAIL', 'bharathkukudala3009@gmail.com' );
+}
+
 /**
  * Collect all administrator email addresses dynamically.
  *
  * @return string[]
  */
 function hrc_admin_notify_recipients() {
-	$emails = [];
+	// Primary recipient for all enquiry / contact notifications.
+	$emails = [ HRC_ADMIN_NOTIFY_EMAIL ];
 	$admins = get_users( [ 'role' => 'administrator', 'fields' => [ 'user_email' ] ] );
 	foreach ( $admins as $admin ) {
 		if ( ! empty( $admin->user_email ) && is_email( $admin->user_email ) ) {
