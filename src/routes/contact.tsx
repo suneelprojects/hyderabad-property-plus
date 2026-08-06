@@ -17,6 +17,7 @@ import { useEnquiry } from "@/components/enquiry-modal";
 import { useMeta } from "@/hooks/queries";
 import { WhatsAppIcon } from "@/components/projects/project-cards";
 import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY, SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/contact";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -45,7 +46,7 @@ function ContactPage() {
 
   const phone = SALES_PHONE_DISPLAY;
   const whatsapp = SALES_WHATSAPP_NUMBER;
-  const email = meta?.email || "hello@hyderabadrealtychoices.com";
+  const email = CONTACT_EMAIL;
   const address = meta?.address || "Financial District, Hyderabad, Telangana 500032";
   const hours = "Mon – Sat · 9:30 AM – 7:30 PM";
 
@@ -87,7 +88,7 @@ function ContactPage() {
               href={waHref}
               external
             />
-            <ContactCard icon={<Mail className="h-5 w-5" />} label="Email" value={email} href={`mailto:${email}`} />
+            <ContactCard icon={<Mail className="h-5 w-5" />} label="Email" value={email} href={CONTACT_EMAIL_HREF} />
             <ContactCard icon={<Clock className="h-5 w-5" />} label="Hours" value={hours} />
             <div className="sm:col-span-2">
               <ContactCard icon={<MapPin className="h-5 w-5" />} label="Office" value={address} />

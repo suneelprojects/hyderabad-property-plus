@@ -6,6 +6,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { useMeta } from "@/hooks/queries";
 import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/contact";
 
 /**
  * ContactCta — the closing "Let's find your address in Hyderabad" section.
@@ -18,7 +19,7 @@ export function ContactCta() {
 
   const address =
     meta?.address ?? "Financial District, Hyderabad, Telangana 500032";
-  const contactEmail = meta?.email ?? "contact@hyderabadrealtychoices.com";
+  const contactEmail = CONTACT_EMAIL;
   const contactPhone = SALES_PHONE_DISPLAY;
 
   return (
@@ -49,7 +50,7 @@ export function ContactCta() {
             </li>
             <li>
               <a
-                href={`mailto:${contactEmail}`}
+                href={CONTACT_EMAIL_HREF}
                 className="flex items-center gap-3 text-[color:var(--navy)] hover:text-[color:var(--gold-2)]"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--gold)]/15 text-[color:var(--gold)]">

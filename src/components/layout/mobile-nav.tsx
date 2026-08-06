@@ -7,6 +7,7 @@ import { useMeta } from "@/hooks/queries";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { cn } from "@/lib/utils";
 import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/contact";
 
 interface Item {
   label: string;
@@ -112,13 +113,13 @@ export function MobileNav({
                   {SALES_PHONE_DISPLAY}
                 </a>
               ) : null}
-              {meta?.email ? (
+              {true ? (
                 <a
-                  href={`mailto:${meta.email}`}
+                  href={CONTACT_EMAIL_HREF}
                   className="mb-4 flex items-center gap-3 text-sm text-muted-foreground"
                 >
                   <Mail className="h-4 w-4 text-[color:var(--gold)]" />
-                  {meta.email}
+                  {CONTACT_EMAIL}
                 </a>
               ) : null}
               <Button
