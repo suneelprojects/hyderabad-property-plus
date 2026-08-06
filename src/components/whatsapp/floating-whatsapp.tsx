@@ -51,7 +51,7 @@ export function FloatingWhatsApp() {
   }, [projectMatch, locationMatch, project?.title, location?.title]);
 
   // Floating WhatsApp CTA routes to the dedicated sales number regardless of /meta.
-  const FLOATING_WA_NUMBER = "918247766377";
+  const FLOATING_WA_NUMBER = SALES_WHATSAPP_NUMBER;
   const href = buildWaLink({ phone: FLOATING_WA_NUMBER, text: message });
 
   // Tooltip auto-reveal, once per session.

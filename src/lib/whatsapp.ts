@@ -5,10 +5,16 @@
  * anywhere else we need a wa.me link.
  */
 
-export const DEFAULT_SALES_WHATSAPP = "919000000000"; // fallback if /meta has none
+export const DEFAULT_SALES_WHATSAPP = "919177350833"; // single company number
+
+/** Canonical company contact number, in the formats we need across the site. */
+export const SALES_PHONE_DIGITS = "919177350833";
+export const SALES_PHONE_E164 = "+919177350833";
+export const SALES_PHONE_DISPLAY = "+91 91773 50833";
+export const SALES_PHONE_TEL = "tel:+919177350833";
 
 /** Single sales WhatsApp number used by every click-to-chat CTA. */
-export const SALES_WHATSAPP_NUMBER = "918247766377";
+export const SALES_WHATSAPP_NUMBER = SALES_PHONE_DIGITS;
 
 /**
  * Normalize a phone number to E.164-digits for wa.me (no `+`, no spaces).
