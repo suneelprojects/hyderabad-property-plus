@@ -907,25 +907,25 @@ function FlatCard({
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
         </dl>
         <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[color:var(--mist)] pt-3 min-[380px]:grid-cols-2">
-          <button
-            type="button"
-            onClick={handleEnquire}
-            aria-label={`Check availability for ${title || flat.bhk || "this unit"} at ${project.title}`}
-            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-[color:var(--navy)] px-3 text-xs font-semibold text-white transition hover:bg-[color:var(--navy)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
-          >
-            <Send className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">Check Availability</span>
-          </button>
           <a
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Contact agent on WhatsApp about ${title || flat.bhk || "this unit"} at ${project.title}`}
+            aria-label={`Check availability on WhatsApp for ${title || flat.bhk || "this unit"} at ${project.title}`}
+            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-[color:var(--navy)] px-3 text-xs font-semibold text-white transition hover:bg-[color:var(--navy)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
+          >
+            <Send className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Check Availability</span>
+          </a>
+          <button
+            type="button"
+            onClick={handleEnquire}
+            aria-label={`Contact agent about ${title || flat.bhk || "this unit"} at ${project.title}`}
             className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-[color:var(--navy)]/15 bg-[color:var(--ivory)] px-3 text-xs font-semibold text-[color:var(--navy)] transition hover:border-[color:var(--gold)] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--gold)]"
           >
             <MessageCircle className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">Contact Agent</span>
-          </a>
+          </button>
         </div>
       </div>
     </div>
