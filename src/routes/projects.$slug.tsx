@@ -57,6 +57,8 @@ import {
   buildFlatWaMessage,
   buildWaLink,
   SALES_WHATSAPP_NUMBER,
+  SALES_PHONE_TEL,
+  SALES_PHONE_DISPLAY,
 } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { HeroEnquiryCard } from "@/components/projects/hero-enquiry-card";
