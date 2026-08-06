@@ -335,65 +335,74 @@ function ProjectHero({
         }}
       />
       <Container className="relative w-full pb-14">
-        <Breadcrumbs
-          items={crumbs}
-          className="mb-6 !text-white/80 [&_a]:!text-white/80 [&_a:hover]:!text-[color:var(--gold)]"
-        />
-        {project.builder ? (
-          <div className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--gold)]">
-            {project.builder}
-          </div>
-        ) : null}
-        <motion.h1
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="font-serif text-4xl font-semibold leading-tight md:text-6xl"
-        >
-          {project.title}
-        </motion.h1>
-        {project.location ? (
-          <div className="mt-4 flex items-center gap-2 text-white/85">
-            <MapPin className="h-4 w-4 text-[color:var(--gold)]" />
-            <span className="text-[15px]">
-              {project.location.title}, Hyderabad
-            </span>
-          </div>
-        ) : null}
-        {project.status ? (
-          <div className="mt-6">
-            <div className="font-serif text-2xl font-semibold text-[color:var(--gold)]">
-              {project.status}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
-              Status
-            </div>
-          </div>
-        ) : null}
+        <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div>
+            <Breadcrumbs
+              items={crumbs}
+              className="mb-6 !text-white/80 [&_a]:!text-white/80 [&_a:hover]:!text-[color:var(--gold)]"
+            />
+            {project.builder ? (
+              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--gold)]">
+                {project.builder}
+              </div>
+            ) : null}
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="font-serif text-4xl font-semibold leading-tight md:text-6xl"
+            >
+              {project.title}
+            </motion.h1>
+            {project.location ? (
+              <div className="mt-4 flex items-center gap-2 text-white/85">
+                <MapPin className="h-4 w-4 text-[color:var(--gold)]" />
+                <span className="text-[15px]">
+                  {project.location.title}, Hyderabad
+                </span>
+              </div>
+            ) : null}
+            {project.status ? (
+              <div className="mt-6">
+                <div className="font-serif text-2xl font-semibold text-[color:var(--gold)]">
+                  {project.status}
+                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
+                  Status
+                </div>
+              </div>
+            ) : null}
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
-            <CalendarCheck className="mr-2 h-4 w-4" />
-            Book Site Visit
-          </Button>
-          <Button
-            variant="hero-outline"
-            size="lg"
-            onClick={() => downloadBrochure(project)}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download Brochure
-          </Button>
-          <Button
-            variant="hero-outline"
-            size="lg"
-            onClick={() => callAdvisor(project, phone)}
-          >
-            <Headphones className="mr-2 h-4 w-4" />
-            Call Advisor
-          </Button>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button variant="gold" size="lg" onClick={() => bookVisit(project)}>
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Book Site Visit
+              </Button>
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => downloadBrochure(project)}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download Brochure
+              </Button>
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => callAdvisor(project, phone)}
+              >
+                <Headphones className="mr-2 h-4 w-4" />
+                Call Advisor
+              </Button>
+            </div>
+          </div>
+
+          <div className="w-full lg:justify-self-end">
+            <HeroEnquiryCard project={project} />
+          </div>
         </div>
       </Container>
+
     </header>
   );
 }
