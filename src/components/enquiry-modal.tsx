@@ -284,12 +284,14 @@ export function EnquiryModal({
               }}
             />
 
-            <DialogPrimitive.Close
+            <button
+              type="button"
               aria-label="Close"
-              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white/90 transition hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--navy)]"
+              onClick={() => onOpenChange(false)}
+              className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white/90 transition hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--navy)]"
             >
               <X className="h-4 w-4" />
-            </DialogPrimitive.Close>
+            </button>
 
             <div className="relative flex items-center gap-2.5">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--gold)] text-[var(--navy)]">
