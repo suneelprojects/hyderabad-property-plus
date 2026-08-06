@@ -88,10 +88,22 @@ export const Route = createFileRoute("/api/public/enquiry")({
           "message",
           "source",
           "project_id",
+          "lead_source",
+          "status",
+          "lead_status",
+          "page_url",
+          "referrer",
+          "submitted_at",
+          "utm_source",
+          "utm_medium",
+          "utm_campaign",
+          "utm_term",
+          "utm_content",
         ] as const) {
           if (payload[key] != null) form.set(key, String(payload[key]));
         }
         if (!form.get("source")) form.set("source", "headless-web");
+
 
         const wpRes = await fetch(bootstrap.ajaxUrl, {
           method: "POST",
