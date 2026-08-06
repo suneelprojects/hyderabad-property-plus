@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useEnquiry } from "@/components/enquiry-modal";
 import { decodeEntities } from "@/lib/html";
 import type { Project } from "@/types/hrc";
+import { SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 const FALLBACK_IMG =
   "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80";
@@ -75,8 +76,7 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 function waLink(project: Project, whatsapp?: string): string | undefined {
-  const waNumber = (whatsapp ?? "").replace(/\D/g, "");
-  if (!waNumber) return undefined;
+  const waNumber = (whatsapp ?? "").replace(/\D/g, "") || SALES_WHATSAPP_NUMBER;
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(
     `Hi, I am interested in ${projectTitle(project)}. Please share details.`,
   )}`;
