@@ -14,6 +14,7 @@ import {
 import { Container } from "./container";
 import { useLocations, useMeta, useProjects } from "@/hooks/queries";
 import { SALES_PHONE_TEL, SALES_PHONE_DISPLAY } from "@/lib/whatsapp";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/contact";
 
 const QUICK_LINKS = [
   { label: "Home", to: "/" },
@@ -153,14 +154,14 @@ export function Footer() {
                   </a>
                 </li>
               ) : null}
-              {meta?.email ? (
+              {true ? (
                 <li>
                   <a
-                    href={`mailto:${meta.email}`}
+                    href={CONTACT_EMAIL_HREF}
                     className="flex items-center gap-3 text-white/80 hover:text-[color:var(--gold)]"
                   >
                     <Mail className="h-4 w-4 text-[color:var(--gold)]" />
-                    {meta.email}
+                    {CONTACT_EMAIL}
                   </a>
                 </li>
               ) : null}
