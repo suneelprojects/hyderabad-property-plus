@@ -23,6 +23,8 @@ const HRC_FLAT_RIBBON_META = '_hrc_flat_ribbon';
 
 // Secure admin REST endpoint (bulk import).
 require_once __DIR__ . '/includes/class-hrc-flat-admin-rest.php';
+// Floor field -> Lower / Middle / Higher dropdown.
+require_once __DIR__ . '/includes/class-hrc-flat-floor-field.php';
 
 register_activation_hook( __FILE__, function () {
 	$role = get_role( 'administrator' );
@@ -149,7 +151,7 @@ function hrc_flat_augment( array $item ) {
 			$item['featured_image'] = false;
 		}
 	}
-	return $item;
+	return apply_filters( 'hrc_flat_augment_item', $item );
 }
 
 add_filter( 'rest_post_dispatch', function ( $response, $server, $request ) {

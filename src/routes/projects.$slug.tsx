@@ -752,6 +752,20 @@ function floorBand(floor: number): "Lower" | "Middle" | "Higher" {
   return "Higher";
 }
 
+/** Accepts either the new band string (Lower/Middle/Higher) or a legacy number. */
+function resolveFloorBand(value: unknown): "Lower" | "Middle" | "Higher" | null {
+  if (value === null || value === undefined || value === "") return null;
+  const raw = String(value).trim();
+  const match = (["Lower", "Middle", "Higher"] as const).find(
+    (b) => b.toLowerCase() === raw.toLowerCase(),
+  );
+  if (match) return match;
+  const n = Number(raw);
+  if (Number.isFinite(n) && n > 0) return floorBand(n);
+  return null;
+}
+
+
 
 function FlatCard({
   flat,
@@ -780,13 +794,9 @@ function FlatCard({
 
   const title = rec.title ? decodeEntities(String(rec.title)) : "";
 
-  const floorNum = Number(rec.floor);
-  const hasValidFloor =
-    rec.floor !== null &&
-    rec.floor !== undefined &&
-    rec.floor !== "" &&
-    Number.isFinite(floorNum) &&
-    floorNum > 0;
+  const floorLabel = resolveFloorBand(rec.floor);
+
+
 
   const flatNumber =
     rec.flat_number !== null &&
@@ -816,7 +826,7 @@ function FlatCard({
   const contextBits = [
     flat.bhk,
     rec.tower ? `Tower ${rec.tower}` : null,
-    hasValidFloor ? `Floor ${floorNum}` : null,
+    floorLabel ? `${floorLabel} floor` : null,
     flat.facing ? `${flat.facing} facing` : null,
     flatNumber ? `Flat ${flatNumber}` : null,
     hasPrice ? formatPriceInr(priceNum) : null,
@@ -838,7 +848,7 @@ function FlatCard({
       flatTitle: title || null,
       bhk: flat.bhk || null,
       tower: rec.tower ? String(rec.tower) : null,
-      floor: hasValidFloor ? String(floorNum) : null,
+      floor: floorLabel,
       size: sizeDisplay,
       price: hasPrice ? formatPriceInr(priceNum) : null,
       flatNumber,
@@ -901,7 +911,7 @@ function FlatCard({
           <Fact label="Facing" value={flat.facing || "—"} />
           <Fact
             label="Floor"
-            value={hasValidFloor ? floorBand(floorNum) : "Lower-Middle-Higher"}
+            value={floorLabel ?? "Lower-Middle-Higher"}
           />
 
           {flatNumber ? <Fact label="Flat No." value={flatNumber} /> : null}
