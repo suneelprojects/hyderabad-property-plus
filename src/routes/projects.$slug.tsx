@@ -241,8 +241,7 @@ function useLeadGate() {
       subtitle:
         "Share your details and we'll connect you with an advisor right away.",
       onSuccess: () => {
-        const tel = `tel:${(phone || "").replace(/\s/g, "")}`;
-        if (tel !== "tel:") window.location.href = tel;
+        window.location.href = SALES_PHONE_TEL;
       },
     });
 
@@ -257,13 +256,13 @@ function ProjectDetail() {
   const { data: project } = useSuspenseQuery(projectQueryOptions(slug));
   const { data: meta } = useSuspenseQuery(metaQueryOptions());
 
-  const phone = meta?.phone || "+919000000000";
-  const whatsapp = meta?.whatsapp || phone;
+  const phone = SALES_PHONE_DISPLAY;
+  const whatsapp = SALES_WHATSAPP_NUMBER;
   const whatsappMsg = encodeURIComponent(
     `Hi, I am interested in ${project.title}`,
   );
   const whatsappUrl = `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${whatsappMsg}`;
-  const telUrl = `tel:${phone.replace(/\s/g, "")}`;
+  const telUrl = SALES_PHONE_TEL;
 
   const heroImage =
     imageSrc(project.featured_image, null) ||
@@ -1195,7 +1194,7 @@ function EnquireCta({
             <Button variant="hero-outline" size="lg" className="w-full" onClick={() => openEnquiry({ project: project.title })}><CalendarCheck className="mr-2 h-4 w-4" />
                 Book Site Visit</Button>
             <Button asChild variant="hero-outline" size="lg" className="w-full">
-              <a href={`tel:${phone.replace(/\s/g, "")}`}>
+              <a href={SALES_PHONE_TEL}>
                 <Phone className="mr-2 h-4 w-4" />
                 {phone}
               </a>

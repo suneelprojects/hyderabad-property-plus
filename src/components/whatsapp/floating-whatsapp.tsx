@@ -6,7 +6,7 @@ import { MessageCircle, X } from "lucide-react";
 
 import { useMeta } from "@/hooks/queries";
 import { projectQueryOptions, locationQueryOptions } from "@/hooks/queries/options";
-import { buildWaLink, WA_MESSAGES } from "@/lib/whatsapp";
+import { buildWaLink, WA_MESSAGES, SALES_WHATSAPP_NUMBER } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 /**
