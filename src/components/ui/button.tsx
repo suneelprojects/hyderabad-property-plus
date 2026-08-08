@@ -27,7 +27,7 @@ const buttonVariants = cva(
         outline:
           "border border-[var(--navy)] bg-transparent text-[var(--navy)] hover:bg-[var(--navy)] hover:text-white",
         "hero-outline":
-          "border border-white/70 bg-white/5 text-white backdrop-blur-sm hover:bg-white hover:text-[var(--navy)]",
+          "border border-white/80 bg-[rgba(6,20,45,0.35)] text-white shadow-[0_2px_14px_rgba(6,20,45,0.35)] backdrop-blur-sm hover:bg-white hover:text-[var(--navy)] focus-visible:ring-white/70",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[var(--mist)]/70",
         destructive:
