@@ -663,7 +663,7 @@ function AvailableFlats({ project }: { project: Project }) {
             No flats added for this project yet. Check back soon.
           </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {(() => {
               const imgs = resolveFlatImagesForList(
                 flats.map((f) => {
