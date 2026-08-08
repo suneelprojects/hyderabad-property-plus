@@ -334,18 +334,26 @@ function ProjectHero({
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(180deg, rgba(10,31,68,.55) 0%, rgba(10,31,68,.78) 60%, rgba(10,31,68,.92) 100%)",
+            "linear-gradient(180deg, rgba(10,31,68,.62) 0%, rgba(10,31,68,.82) 55%, rgba(10,31,68,.94) 100%)",
+        }}
+      />
+      {/* Extra scrim behind the copy column for guaranteed text contrast */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-3/4"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(6,20,45,.72) 0%, rgba(6,20,45,.45) 45%, rgba(6,20,45,0) 80%)",
         }}
       />
       <Container className="relative w-full pb-14">
         <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div>
+          <div className="min-w-0">
             <Breadcrumbs
               items={crumbs}
-              className="mb-6 !text-white/80 [&_a]:!text-white/80 [&_a:hover]:!text-[color:var(--gold)]"
+              className="mb-6 gap-x-2 gap-y-1.5 !text-white/85 [&_a]:!text-white [&_a:hover]:!text-[color:var(--gold)] [&_span]:!text-white/85 [&_span]:break-words [&_svg]:!text-[color:var(--gold)] [&_a_svg]:!text-white"
             />
             {project.builder ? (
-              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--gold)]">
+              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--gold)] [text-shadow:0_1px_6px_rgba(6,20,45,.55)]">
                 {project.builder}
               </div>
             ) : null}
@@ -353,24 +361,24 @@ function ProjectHero({
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="font-serif text-4xl font-semibold leading-tight md:text-6xl"
+              className="font-serif text-4xl font-semibold leading-tight !text-white [text-shadow:0_2px_18px_rgba(6,20,45,.6)] md:text-6xl"
             >
               {project.title}
             </motion.h1>
             {project.location ? (
-              <div className="mt-4 flex items-center gap-2 text-white/85">
-                <MapPin className="h-4 w-4 text-[color:var(--gold)]" />
-                <span className="text-[15px]">
+              <div className="mt-4 flex items-center gap-2 text-white/95">
+                <MapPin className="h-4 w-4 shrink-0 text-[color:var(--gold)]" />
+                <span className="text-[15px] [text-shadow:0_1px_8px_rgba(6,20,45,.55)]">
                   {project.location.title}, Hyderabad
                 </span>
               </div>
             ) : null}
             {project.status ? (
               <div className="mt-6">
-                <div className="font-serif text-2xl font-semibold text-[color:var(--gold)]">
+                <div className="font-serif text-2xl font-semibold !text-[color:var(--gold)] [text-shadow:0_1px_10px_rgba(6,20,45,.6)]">
                   {project.status}
                 </div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/85">
                   Status
                 </div>
               </div>
